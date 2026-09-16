@@ -1,4 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "./auth/middleware";
+
+function requireText(value: unknown, field: string, max = 512): string {
+  if (typeof value !== "string") throw new Error(`Invalid ${field}`);
+  const result = value.trim();
+  if (!result || result.length > max) throw new Error(`Invalid ${field}`);
+  return result;
+}
+
+function genericProviderError(fallback: string): string { return fallback; }
 
 type JellyfinItem = {
   Id?: string;
@@ -37,12 +47,18 @@ async function jfFetch(url: string, headers: Record<string, string>, init: Reque
   return data;
 }
 
-function normalizeBase(url: string) {
-  return url.trim().replace(/\/$/, "");
+function normalizeBase(value: unknown) {
+  const raw = requireText(value, "server URL");
+  const url = new URL(raw);
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) throw new Error("Invalid server URL");
+  return url.toString().replace(/\/$/, "");
 }
 
 export const jellyfinConnect = createServerFn({ method: "POST" })
-  .validator((input: { baseUrl: string; username: string; password: string; clientId: string }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { baseUrl: string; username: string; password: string; clientId: string }) => ({
+    baseUrl: normalizeBase(input?.baseUrl), username: requireText(input?.username, "username", 160), password: requireText(input?.password, "password", 512), clientId: requireText(input?.clientId, "client id", 160),
+  }))
   .handler(async ({ data }) => {
     const baseUrl = normalizeBase(data.baseUrl);
     const deviceId = data.clientId.trim() || "cinevo-web";
@@ -69,13 +85,16 @@ export const jellyfinConnect = createServerFn({ method: "POST" })
     } catch (err) {
       return {
         ok: false as const,
-        error: err instanceof Error ? err.message : "Could not reach that Jellyfin library from here.",
+        error: genericProviderError("Could not reach that Jellyfin library from here."),
       };
     }
   });
 
 export const jellyfinListSections = createServerFn({ method: "POST" })
-  .validator((input: { baseUrl: string; token: string; userId: string; clientId: string }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { baseUrl: string; token: string; userId: string; clientId: string }) => ({
+    baseUrl: normalizeBase(input?.baseUrl), token: requireText(input?.token, "token", 512), userId: requireText(input?.userId, "user id", 160), clientId: requireText(input?.clientId, "client id", 160),
+  }))
   .handler(async ({ data }) => {
     const baseUrl = normalizeBase(data.baseUrl);
     try {
@@ -99,22 +118,18 @@ export const jellyfinListSections = createServerFn({ method: "POST" })
     } catch (err) {
       return {
         ok: false as const,
-        error: err instanceof Error ? err.message : "Could not list Jellyfin libraries.",
+        error: genericProviderError("Could not list Jellyfin libraries."),
       };
     }
   });
 
 export const jellyfinImportSections = createServerFn({ method: "POST" })
-  .validator(
-    (input: {
-      baseUrl: string;
-      token: string;
-      userId: string;
-      clientId: string;
-      sourceLabel: string;
-      sectionKeys: string[];
-    }) => input,
-  )
+  .middleware([authMiddleware])
+  .validator((input: { baseUrl: string; token: string; userId: string; clientId: string; sourceLabel: string; sectionKeys: string[] }) => {
+    const sectionKeys = Array.isArray(input?.sectionKeys) ? input.sectionKeys.slice(0, 12).map((key) => requireText(key, "section", 120)) : [];
+    if (!sectionKeys.length) throw new Error("Select at least one library");
+    return { baseUrl: normalizeBase(input?.baseUrl), token: requireText(input?.token, "token", 512), userId: requireText(input?.userId, "user id", 160), clientId: requireText(input?.clientId, "client id", 160), sourceLabel: requireText(input?.sourceLabel, "source label", 120), sectionKeys };
+  })
   .handler(async ({ data }) => {
     const baseUrl = normalizeBase(data.baseUrl);
     const headers = { "X-Emby-Authorization": authHeader(data.clientId, data.token) };
@@ -164,7 +179,7 @@ export const jellyfinImportSections = createServerFn({ method: "POST" })
     } catch (err) {
       return {
         ok: false as const,
-        error: err instanceof Error ? err.message : "Could not import that Jellyfin library.",
+        error: genericProviderError("Could not import that Jellyfin library."),
       };
     }
   });

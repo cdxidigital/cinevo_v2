@@ -14,7 +14,7 @@ function requireString(value: unknown, field: string, maxLength: number): string
 }
 
 function isEmail(value: string): boolean {
-  return value.length <= 254 && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value);
+  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export const listSharedLibraries = createServerFn({ method: "GET" })
@@ -34,7 +34,10 @@ function sanitizeText(input: string, maxLength: number): string {
 
 export const createSharedLibrary = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: { name: string; description?: string }) => input)
+  .validator((input: { name: string; description?: string }) => {
+    if (!input || typeof input !== "object") throw new Error("Invalid library input");
+    return { name: requireString(input.name, "Library name", 80), description: typeof input.description === "string" ? input.description.slice(0, 240) : "" };
+  })
   .handler(async ({ data, context }) => {
     const name = sanitizeText(requireString(data.name, "Library name", 80), 80);
     if (!name) throw new Error("Library name is required");
@@ -48,7 +51,10 @@ export const createSharedLibrary = createServerFn({ method: "POST" })
 
 export const inviteToLibrary = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: { libraryId: string; email: string; role: "viewer" | "editor" }) => input)
+  .validator((input: { libraryId: string; email: string; role: "viewer" | "editor" }) => {
+    if (!input || typeof input !== "object") throw new Error("Invalid invite input");
+    return { libraryId: requireString(input.libraryId, "Library", 160), email: requireString(input.email, "Email", 254), role: input.role };
+  })
   .handler(async ({ data, context }) => {
     const email = requireString(data.email, "Email", 254).toLowerCase();
     if (!isEmail(email)) throw new Error("Enter a valid email address");
@@ -64,32 +70,30 @@ export const inviteToLibrary = createServerFn({ method: "POST" })
 
 export const acceptLibraryInvite = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: { token: string }) => input)
+  .validator((input: { token: string }) => ({ token: requireString(input?.token, "Invite token", 128) }))
   .handler(async ({ data, context }) => {
     const token = requireString(data.token, "Invite token", 128);
     const sql = await getSql();
     const inviteRows = await sql.query<{ libraryId: string; role: string; email: string }>("select \"libraryId\", role, email from cinevo_library_invites where token = $1 and \"expiresAt\" > now() and \"acceptedAt\" is null", [token]);
     const invite = inviteRows[0];
     if (!invite) throw new Error("This invite is expired or already used");
-    
-    // Get the current user's email from auth session
     const { getSessionUser } = await import("./auth/verify.server");
     const user = await getSessionUser();
-    if (!user || !user.email) throw new Error("Could not verify your email. Please sign in again.");
-    
-    // Verify the accepting user's email matches the invite's email
-    if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-      throw new Error("This invite is for a different email address");
-    }
-    
-    await sql.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, $4) on conflict (\"libraryId\", \"userId\") do update set role = excluded.role", [id("member"), invite.libraryId, context.userId, invite.role]);
-    await sql.query("update cinevo_library_invites set \"acceptedAt\" = now() where token = $1 and \"acceptedAt\" is null", [token]);
-    return { libraryId: invite.libraryId };
+    if (!user?.email) throw new Error("Could not verify your email. Please sign in again.");
+    if (user.email.toLowerCase() !== invite.email.toLowerCase()) throw new Error("This invite is for a different email address");
+    const claimed = await sql.query<{ libraryId: string; role: string }>("update cinevo_library_invites set \"acceptedAt\" = now() where token = $1 and \"expiresAt\" > now() and \"acceptedAt\" is null returning \"libraryId\", role", [token]);
+    const claim = claimed[0];
+    if (!claim) throw new Error("This invite is expired or already used");
+    await sql.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, $4) on conflict (\"libraryId\", \"userId\") do update set role = excluded.role", [id("member"), claim.libraryId, context.userId, claim.role]);
+    return { libraryId: claim.libraryId };
   });
 
 export const savePlaybackProgress = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: { titleId: string; progress: number }) => input)
+  .validator((input: { titleId: string; progress: number }) => {
+    if (!input || typeof input !== "object") throw new Error("Invalid progress input");
+    return { titleId: requireString(input.titleId, "Title", 260), progress: Number(input.progress) };
+  })
   .handler(async ({ data, context }) => {
     if (typeof data.titleId !== "string" || !/^(plex|jf|jellyfin|node)-[A-Za-z0-9._:-]{1,240}$/.test(data.titleId)) {
       throw new Error("Invalid title");
@@ -97,7 +101,8 @@ export const savePlaybackProgress = createServerFn({ method: "POST" })
     if (typeof data.progress !== "number" || !Number.isFinite(data.progress)) {
       throw new Error("Invalid progress");
     }
-    const progress = Math.max(0, Math.min(100, data.progress));
+    if (data.progress < 0 || data.progress > 100) throw new Error("Progress must be between 0 and 100");
+    const progress = data.progress;
     const sql = await getSql();
     const titlePrefix = data.titleId.slice(0, data.titleId.indexOf("-"));
     if (titlePrefix !== "node") {

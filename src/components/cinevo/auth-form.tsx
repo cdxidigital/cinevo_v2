@@ -39,7 +39,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       await signInWithProvider(providerId, { callbackURL: "/app", errorCallbackURL: window.location.pathname });
     } catch (socialError) {
       setPending(false);
-      setError(socialError instanceof Error ? socialError.message : "Social sign-in could not be started.");
+      setError("Social sign-in could not be started. Check your connection and try again.");
     }
   }
 
@@ -75,7 +75,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       </label>
       {error ? <p className="auth-error" role="alert">{error}</p> : null}
       <button className="public-primary auth-submit" type="submit" disabled={pending}>
-        {pending ? "Opening CINEVO…" : isSignup ? "Create account" : "Log in"} <ArrowRight size={15} />
+        {pending ? "Working…" : isSignup ? "Create account" : "Log in"} <ArrowRight size={15} />
       </button>
       <p className="auth-switch">
         {isSignup ? "Already have an account?" : "New to CINEVO?"}{" "}

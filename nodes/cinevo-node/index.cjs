@@ -104,11 +104,11 @@ function send(res, status, body, extra = {}) {
   const headers = {
     "Content-Type": typeof body === "string" ? "text/html; charset=utf-8" : "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": "*",
+    ...(res.__cinevoOrigin ? { "Access-Control-Allow-Origin": res.__cinevoOrigin, "Vary": "Origin" } : {}),
     "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
     "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
     "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
-    "Access-Control-Allow-Private-Network": "true",
+    ...(res.__cinevoOrigin ? { "Access-Control-Allow-Private-Network": "true" } : {}),
     ...extra,
   };
   res.writeHead(status, headers);
@@ -161,7 +161,16 @@ function mediaBaseUrl(value) {
 
 function isAllowedDashboardRequest(req) {
   const origin = String(req.headers.origin || "");
-  return !origin || origin === `http://${HOST}:${PORT}` || origin === `http://localhost:${PORT}`;
+  if (!origin) return true;
+  const configured = String(process.env.CINEVO_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return [
+    `http://${HOST}:${PORT}`,
+    `http://localhost:${PORT}`,
+    ...configured,
+  ].includes(origin);
 }
 
 function requireSession(req, res) {
@@ -697,6 +706,12 @@ async function importSections(conn, keys) {
 
 async function handle(req, res) {
   const url = new URL(req.url || "/", `http://${HOST}:${PORT}`);
+  const origin = String(req.headers.origin || "");
+  if (origin && !isAllowedDashboardRequest(req)) {
+    send(res, 403, { error: "Origin is not allowed" });
+    return;
+  }
+  res.__cinevoOrigin = origin || `http://${HOST}:${PORT}`;
   if (req.method === "OPTIONS") {
     send(res, 204, "");
     return;
@@ -723,7 +738,7 @@ async function handle(req, res) {
     res.writeHead(200, {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=86400",
-      "Access-Control-Allow-Origin": "*",
+      ...(res.__cinevoOrigin ? { "Access-Control-Allow-Origin": res.__cinevoOrigin, "Vary": "Origin" } : {}),
     });
     res.end(png);
     return;
