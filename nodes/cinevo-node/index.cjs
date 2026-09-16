@@ -7,9 +7,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const crypto = require("node:crypto");
+const { Readable } = require("node:stream");
 const { exec } = require("node:child_process");
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.CINEVO_NODE_PORT || 48184);
 const CODE_TTL_MS = 10 * 60 * 1000;
@@ -104,8 +105,9 @@ function send(res, status, body, extra = {}) {
     "Content-Type": typeof body === "string" ? "text/html; charset=utf-8" : "application/json; charset=utf-8",
     "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
+    "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+    "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
     "Access-Control-Allow-Private-Network": "true",
     ...extra,
   };
@@ -219,7 +221,7 @@ function dashboardHtml() {
   <main>
     <p>PRIVATE COMPANION</p>
     <h1>Loopback only.</h1>
-    <p>This process never leaves your machine. Pair CINEVO with the code below. It expires in about ${mins} minutes.</p>
+    <p>This process never leaves your machine. Pair CINEVO with the code below. It expires in about ${mins} minutes. Playback is proxied from here — tokens never go to CINEVO.</p>
     <div class="card">
       <label>PAIRING CODE</label>
       <div class="code">${escapeHtml(code)}</div>
@@ -312,6 +314,244 @@ function prettyName(fileName) {
 function yearOf(fileName) {
   const m = /\(?((?:19|20)\d{2})\)?/.exec(fileName);
   return m ? m[1] : "";
+}
+
+const MIME = {
+  ".mp4": "video/mp4",
+  ".m4v": "video/mp4",
+  ".webm": "video/webm",
+  ".mov": "video/quicktime",
+  ".mkv": "video/x-matroska",
+  ".avi": "video/x-msvideo",
+  ".ts": "video/mp2t",
+  ".m2ts": "video/mp2t",
+  ".wmv": "video/x-ms-wmv",
+};
+
+function mimeFor(filePath) {
+  return MIME[path.extname(filePath).toLowerCase()] || "application/octet-stream";
+}
+
+function streamCors() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
+    "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+    "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
+    "Access-Control-Allow-Private-Network": "true",
+    "Cache-Control": "no-store",
+  };
+}
+
+function isInside(parent, child) {
+  const rel = path.relative(parent, child);
+  return Boolean(rel) && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+function parseRange(header, size) {
+  if (!header || !size) return null;
+  const m = /^bytes=(\d*)-(\d*)$/i.exec(String(header).trim());
+  if (!m) return null;
+  let start;
+  let end;
+  if (m[1] === "" && m[2]) {
+    const suffix = Number(m[2]);
+    if (!Number.isFinite(suffix) || suffix <= 0) return null;
+    start = Math.max(0, size - suffix);
+    end = size - 1;
+  } else {
+    start = m[1] ? Number(m[1]) : 0;
+    end = m[2] ? Number(m[2]) : size - 1;
+  }
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || start >= size || start > end) return null;
+  return { start, end: Math.min(end, size - 1) };
+}
+
+function sessionFrom(req, url) {
+  const token = bearer(req) || String(url.searchParams.get("token") || "");
+  const session = token ? state.sessions.get(token) : null;
+  if (!session || session.expires < Date.now()) return null;
+  return session;
+}
+
+function indexFolderFiles(folder) {
+  if (Array.isArray(folder.files) && folder.files.length) return folder.files;
+  if (!folder.path) return [];
+  const acc = [];
+  walkVideos(folder.path, acc, 0);
+  folder.files = acc.map((f) => ({
+    id: `node-${hashStr(f.path)}`,
+    path: f.path,
+    name: f.name,
+  }));
+  saveConfig(state.config);
+  return folder.files;
+}
+
+function findLocalFile(id) {
+  for (const folder of state.config.folders || []) {
+    const hit = indexFolderFiles(folder).find((f) => f.id === id);
+    if (!hit) continue;
+    try {
+      const root = fs.realpathSync(folder.path);
+      const file = fs.realpathSync(hit.path);
+      if (!isInside(root, file)) continue;
+      if (!fs.statSync(file).isFile()) continue;
+      return file;
+    } catch {
+      /* missing or escaped path */
+    }
+  }
+  return null;
+}
+
+function remoteKeyFromId(id) {
+  const plex = /^plex-(.+)$/.exec(id);
+  if (plex) return { provider: "plex", key: plex[1] };
+  const jf = /^(?:jf|jellyfin)-(.+)$/.exec(id);
+  if (jf) return { provider: "jellyfin", key: jf[1] };
+  return null;
+}
+
+function connectionsFor(provider, connectionId) {
+  const all = state.config.connections || [];
+  if (connectionId) {
+    const hit = all.find((c) => c.id === connectionId);
+    return hit ? [hit] : [];
+  }
+  return all.filter((c) => c.provider === provider);
+}
+
+function streamLocalFile(req, res, filePath) {
+  const stat = fs.statSync(filePath);
+  const size = stat.size;
+  const type = mimeFor(filePath);
+  const cors = streamCors();
+  if (req.method === "HEAD") {
+    res.writeHead(200, { ...cors, "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
+    res.end();
+    return;
+  }
+  const range = parseRange(req.headers.range, size);
+  if (range) {
+    const length = range.end - range.start + 1;
+    res.writeHead(206, {
+      ...cors,
+      "Content-Type": type,
+      "Content-Length": length,
+      "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
+      "Accept-Ranges": "bytes",
+    });
+    const stream = fs.createReadStream(filePath, { start: range.start, end: range.end });
+    stream.on("error", () => {
+      if (!res.writableEnded) res.end();
+    });
+    req.on("close", () => stream.destroy());
+    stream.pipe(res);
+    return;
+  }
+  res.writeHead(200, { ...cors, "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
+  const stream = fs.createReadStream(filePath);
+  stream.on("error", () => {
+    if (!res.writableEnded) res.end();
+  });
+  req.on("close", () => stream.destroy());
+  stream.pipe(res);
+}
+
+async function plexPlayUrl(conn, ratingKey) {
+  const data = await fetchJson(`${conn.baseUrl}/library/metadata/${encodeURIComponent(ratingKey)}`, {
+    Accept: "application/json",
+    "X-Plex-Token": conn.token,
+  });
+  const meta = (((data.MediaContainer || {}).Metadata) || [])[0] || {};
+  const media = (meta.Media || [])[0] || {};
+  const part = (media.Part || [])[0] || {};
+  const container = String(part.container || media.container || "").toLowerCase();
+  const key = String(part.key || "");
+  const friendly = ["mp4", "mov", "m4v", "webm"].includes(container);
+  if (key && friendly) {
+    const href = key.startsWith("http") ? key : `${conn.baseUrl}${key}`;
+    const target = new URL(href);
+    target.searchParams.set("X-Plex-Token", conn.token);
+    return { url: target.toString(), headers: { "X-Plex-Token": conn.token } };
+  }
+  const session = crypto.randomBytes(8).toString("hex");
+  const params = new URLSearchParams({
+    path: `/library/metadata/${ratingKey}`,
+    mediaIndex: "0",
+    partIndex: "0",
+    protocol: "http",
+    fastSeek: "1",
+    directPlay: "0",
+    directStream: "1",
+    directStreamAudio: "1",
+    subtitleSize: "100",
+    audioBoost: "100",
+    location: "lan",
+    session,
+    "X-Plex-Platform": "Chrome",
+    "X-Plex-Client-Identifier": "cinevo-node",
+    "X-Plex-Product": "CINEVO",
+    "X-Plex-Device": "Node",
+    "X-Plex-Token": conn.token,
+  });
+  return {
+    url: `${conn.baseUrl}/video/:/transcode/universal/start.mp4?${params}`,
+    headers: { "X-Plex-Token": conn.token, Accept: "video/mp4" },
+  };
+}
+
+async function jellyPlayUrl(conn, itemId) {
+  await jellyLogin(conn);
+  return {
+    url: `${conn.baseUrl}/Videos/${encodeURIComponent(itemId)}/stream.mp4?static=false`,
+    headers: { "X-Emby-Token": conn.accessToken },
+  };
+}
+
+async function proxyUpstream(req, res, url, headers) {
+  const ac = new AbortController();
+  const onClose = () => ac.abort();
+  req.on("close", onClose);
+  const hdrs = { ...headers };
+  if (req.headers.range) hdrs.Range = req.headers.range;
+  let upstream;
+  try {
+    upstream = await fetch(url, { headers: hdrs, signal: ac.signal, redirect: "follow" });
+  } catch (err) {
+    req.off("close", onClose);
+    if (ac.signal.aborted) return;
+    send(res, 502, { error: err instanceof Error ? err.message : "Upstream stream failed" });
+    return;
+  }
+  if (!upstream.ok && upstream.status !== 206) {
+    req.off("close", onClose);
+    const errText = await upstream.text().catch(() => "");
+    send(res, 502, { error: errText.slice(0, 200) || `Media server returned ${upstream.status}` });
+    return;
+  }
+  const out = streamCors();
+  out["Content-Type"] = upstream.headers.get("content-type") || "video/mp4";
+  out["Accept-Ranges"] = upstream.headers.get("accept-ranges") || "bytes";
+  const length = upstream.headers.get("content-length");
+  const contentRange = upstream.headers.get("content-range");
+  if (length) out["Content-Length"] = length;
+  if (contentRange) out["Content-Range"] = contentRange;
+  const status = upstream.status === 206 ? 206 : 200;
+  if (req.method === "HEAD" || !upstream.body) {
+    req.off("close", onClose);
+    res.writeHead(status, out);
+    res.end();
+    return;
+  }
+  res.writeHead(status, out);
+  const nodeStream = Readable.fromWeb(upstream.body);
+  nodeStream.on("error", () => {
+    if (!res.writableEnded) res.end();
+  });
+  req.on("close", () => nodeStream.destroy());
+  nodeStream.pipe(res);
 }
 
 async function fetchJson(url, headers) {
@@ -411,6 +651,7 @@ async function importSections(conn, keys) {
           synopsis: item.summary || "",
           genre: ((item.Genre || [])[0] || {}).tag || "Plex",
           sourceLabel: conn.baseUrl,
+          connectionId: conn.id,
         });
       }
     }
@@ -431,6 +672,7 @@ async function importSections(conn, keys) {
           synopsis: item.Overview || "",
           genre: (item.Genres && item.Genres[0]) || "Jellyfin",
           sourceLabel: conn.baseUrl,
+          connectionId: conn.id,
         });
       }
     }
@@ -451,6 +693,7 @@ async function handle(req, res) {
       version: VERSION,
       deviceId: state.config.deviceId,
       loopback: true,
+      playback: true,
       port: PORT,
     });
     return;
@@ -606,11 +849,17 @@ async function handle(req, res) {
     const files = [];
     walkVideos(folderPath, files, 0);
     const name = path.basename(folderPath);
+    const indexed = files.map((f) => ({
+      id: `node-${hashStr(f.path)}`,
+      path: f.path,
+      name: f.name,
+    }));
     const folder = {
       id: `folder-${crypto.randomBytes(4).toString("hex")}`,
       path: folderPath,
       name,
       count: files.length,
+      files: indexed,
     };
     state.config.folders = state.config.folders || [];
     state.config.folders.push(folder);
@@ -619,8 +868,8 @@ async function handle(req, res) {
       id: folder.id,
       name,
       count: files.length,
-      titles: files.map((f) => ({
-        id: `node-${hashStr(f.path)}`,
+      titles: indexed.map((f) => ({
+        id: f.id,
         title: prettyName(f.name),
         year: yearOf(f.name),
         path: f.path,
@@ -672,6 +921,47 @@ async function handle(req, res) {
     } catch (e) {
       send(res, 502, { error: e.message || "Import failed" });
     }
+    return;
+  }
+
+  if ((req.method === "GET" || req.method === "HEAD") && url.pathname === "/v1/stream") {
+    if (!sessionFrom(req, url)) {
+      send(res, 401, { error: "The local pairing session expired" });
+      return;
+    }
+    const id = String(url.searchParams.get("id") || "");
+    if (!id) {
+      send(res, 400, { error: "Missing title id" });
+      return;
+    }
+    const local = findLocalFile(id);
+    if (local) {
+      try {
+        streamLocalFile(req, res, local);
+      } catch (e) {
+        send(res, 500, { error: e.message || "Could not read that file" });
+      }
+      return;
+    }
+    const remote = remoteKeyFromId(id);
+    if (!remote) {
+      send(res, 404, { error: "CINEVO Node has no file for that title" });
+      return;
+    }
+    const connectionId = String(url.searchParams.get("connectionId") || "");
+    const conns = connectionsFor(remote.provider, connectionId);
+    let last = "No matching media server on this Node";
+    for (const conn of conns) {
+      try {
+        const play =
+          remote.provider === "plex" ? await plexPlayUrl(conn, remote.key) : await jellyPlayUrl(conn, remote.key);
+        await proxyUpstream(req, res, play.url, play.headers);
+        return;
+      } catch (e) {
+        last = e.message || last;
+      }
+    }
+    send(res, 502, { error: last });
     return;
   }
 

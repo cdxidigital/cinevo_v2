@@ -21,6 +21,7 @@ export type Title = {
   source?: "cinevo" | "folder" | "plex" | "jellyfin";
   sourceLabel?: string;
   path?: string;
+  connectionId?: string;
 };
 
 export const CATALOG: Title[] = [];
