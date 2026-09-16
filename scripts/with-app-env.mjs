@@ -62,7 +62,9 @@ export function readAppEnv(root) {
 
 /** File values under the process environment: an explicit override wins. */
 export function mergeAppEnv(appEnv, processEnv) {
-  return { ...appEnv, ...processEnv };
+  // Workspace feature flags must control Vite consistently in preview/build;
+  // platform-injected process values otherwise keep auth disabled in preview.
+  return { ...processEnv, ...appEnv };
 }
 
 /**

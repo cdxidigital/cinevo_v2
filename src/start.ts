@@ -10,8 +10,11 @@ if (publishableKey && !process.env.CLERK_PUBLISHABLE_KEY) {
 }
 
 export const startInstance = createStart(() => ({
-  requestMiddleware:
-    process.env.NODE_ENV === "production"
-      ? [createCsrfMiddleware(), clerkMiddleware({ publishableKey, secretKey })]
-      : [],
+  requestMiddleware: [
+    createCsrfMiddleware({
+      filter: ({ request }) =>
+        !["GET", "HEAD", "OPTIONS"].includes(request.method),
+    }),
+    clerkMiddleware({ publishableKey, secretKey }),
+  ],
 }));

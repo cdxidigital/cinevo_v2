@@ -203,3 +203,18 @@ Error: Cannot load nitro build info. Make sure to build first.
     at async BasicMinimalPluginContext.configurePreviewServer (file:///vercel/share/v0-project/node_modules/nitro/dist/vite.mjs:140:20)
     at async preview (file:///vercel/share/v0-project/node_modules/vite/dist/node/chunks/node.js:35843:91)
     at async CAC.<anonymous> (file:///vercel/share/v0-project/node_modules/vite/dist/node/cli.js:807:18)
+
+> preview
+> node scripts/with-app-env.mjs vite preview
+
+
+ ╭────────── [Build Info] ─────────────╮
+ │                                     │
+ │  - Build Directory: .vercel/output  │
+ │  - Date: 9/16/2026, 8:24:09 AM      │
+ │  - Nitro Version: 3.0.260610-beta   │
+ │  - Nitro Preset: vercel             │
+ │                                     │
+ ╰─────────────────────────────────────╯
+
+  ➜  Local:   http://127.0.0.1:8081/
