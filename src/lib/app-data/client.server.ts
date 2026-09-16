@@ -278,7 +278,9 @@ function tokenIdentityKey(token: string): string {
             .digest("base64url");
         }
       }
-    } catch {}
+    } catch {
+      // Malformed bearer tokens fall through to the stable hash path.
+    }
   }
   return createHash("sha256").update(token).digest("base64url");
 }

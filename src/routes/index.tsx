@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowRight, Check, Play, ShieldCheck, Sparkles } from "lucide-react";
 import { InstallerCards } from "@/components/cinevo/installers";
 import { Logo } from "@/components/cinevo/logo";
+import { AndroidBuildInstructions, PlatformDownloads } from "@/components/cinevo/platform-downloads";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -11,6 +12,9 @@ const NAV = [
   { label: "Node", to: "/node" as const },
   { label: "CINEVO Core", href: "/app" },
 ];
+
+const HERO_DESCRIPTION =
+  "CINEVO brings every library you control into one considered cinematic space. Create your free account once, connect Plex or your friends' servers once, and return to the same collection on every screen.";
 
 const STEPS = [
   { n: "01", t: "Connect a server", d: "Add a folder on this computer, sign in with Plex, or pair CINEVO Node for Jellyfin." },
@@ -94,13 +98,10 @@ function Home() {
               <br />
               <em>Your moment.</em>
             </h1>
-            <p>
-              CINEVO brings the libraries you control into a considered cinematic space — built around your collection,
-              the people you trust, and choices you can always reverse.
-            </p>
+            <p suppressHydrationWarning>{HERO_DESCRIPTION}</p>
             <div className="public-hero__actions">
               <Link to="/app" className="public-primary">
-                <Play size={15} fill="currentColor" /> Enter CINEVO
+                <Play size={15} fill="currentColor" /> Create your library
               </Link>
               <Link to="/app" className="public-secondary">
                 Open your library <ArrowDownRight size={16} />
@@ -109,10 +110,10 @@ function Home() {
           </div>
           <div className="public-hero__note">
             <ShieldCheck size={16} />
-            <span>
-              <b>Private from the first connection</b>
-              <small>Personal media remains on your computer or Plex server.</small>
-            </span>
+              <span>
+                <b>Connect once. Keep your place.</b>
+                <small>Your account remembers Plex, shared servers, libraries, and preferences.</small>
+              </span>
           </div>
         </section>
 
@@ -198,6 +199,14 @@ function Home() {
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="home-platforms" id="platforms">
+          <span className="public-kicker">WATCH WHERE YOU ARE</span>
+          <h2 className="mt-4 font-display text-4xl font-bold tracking-tight md:text-5xl">Your library, from couch to commute.</h2>
+          <p className="mt-4 mb-8 max-w-xl text-sm text-[#a9a1ae]">Use the web app anywhere, or package the same CINEVO experience for Android phones and Android TV.</p>
+          <PlatformDownloads />
+          <AndroidBuildInstructions />
         </section>
 
         <section className="home-downloads" id="downloads">

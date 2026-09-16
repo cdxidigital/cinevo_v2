@@ -1,32 +1,61 @@
 @import "tailwindcss";
 
-@theme {
-  --color-cine-bg: #000000;
-  --color-cine-elevated: #121018;
-  --color-cine-surface: #16111d;
-  --color-cine-well: #0c0a10;
-  --color-cine-border: rgb(255 255 255 / 13%);
-  --color-cine-line: rgb(255 255 255 / 18%);
-  --color-cine-text: #fbfaff;
-  --color-cine-muted: #a5a1ad;
-  --color-cine-faint: #706b79;
-  --color-cine-cyan: #0ccdf6;
-  --color-cine-magenta: #9b4dff;
-  --color-cine-violet: #9b4dff;
-  --color-cine-blue: #7c5cff;
-  --color-cine-amber: #ffcf77;
-  --color-cine-lime: #0ccdf6;
-  --color-cine-danger: #ff7e97;
-  --font-display: "Montserrat", "Inter", system-ui, sans-serif;
-  --font-ui: "DM Sans", "Inter", system-ui, sans-serif;
-  --font-sans: "DM Sans", "Inter", system-ui, sans-serif;
-  --font-mono: "DM Sans", ui-monospace, monospace;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --ease-cine: cubic-bezier(0.23, 1, 0.32, 1);
+
+/* Platform delivery cards keep web, phone, and TV paths equally discoverable. */
+.home-platforms { width: min(1280px, calc(100% - clamp(2rem, 8vw, 8rem))); margin: 0 auto; padding-block: clamp(4rem, 9vw, 8rem); }
+.platform-downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; }
+.platform-card { display: grid; gap: .8rem; min-height: 10rem; padding: 1.1rem; border: 1px solid var(--color-cine-border); border-radius: 1rem; background: var(--color-cine-surface); color: var(--color-cine-cyan); }
+.platform-card h3 { margin-top: .7rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: 1.15rem; }
+.platform-card p { margin-top: .2rem; color: var(--color-cine-faint); font-size: .78rem; }
+.platform-card a { display: inline-flex; align-items: center; gap: .35rem; margin-top: auto; color: var(--color-cine-cyan); font-family: var(--font-ui); font-size: .75rem; font-weight: 700; }
+.android-build-card { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; margin-top: 1rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--color-cine-border); border-radius: 1rem; background: var(--color-cine-elevated); }
+.android-build-card h3 { margin-top: .65rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); }
+.android-build-card p { margin-top: .65rem; color: var(--color-cine-faint); font-size: .85rem; line-height: 1.6; }
+.android-build-card ol { display: grid; gap: .75rem; align-content: center; }
+.android-build-card li { display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem; align-items: start; color: var(--color-cine-faint); font-size: .78rem; }
+.android-build-card li b { color: var(--color-cine-cyan); font-family: var(--font-mono); }
+.android-build-card code { color: var(--color-cine-text); font-family: var(--font-mono); font-size: .7rem; }
+@media (max-width: 760px) { .android-build-card { grid-template-columns: 1fr; } }
+
+/* Cinematic journey: compact reward telemetry that stays useful, not noisy. */
+.app-journey-dock { position: fixed; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 2.5rem); z-index: 20; width: min(23rem, calc(100vw - 2rem)); }
+.journey-panel { border: 1px solid var(--color-cine-border); background: var(--color-cine-elevated); backdrop-filter: blur(18px); border-radius: 1rem; padding: 1rem; box-shadow: 0 1.5rem 4rem rgb(0 0 0 / .28); }
+.journey-panel__header, .journey-progress__meta, .journey-stats, .journey-latest { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.journey-panel__header h2 { margin: .2rem 0 0; font-family: var(--font-display); font-size: 1.15rem; }
+.journey-level { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-cine-cyan); font-family: var(--font-ui); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.journey-progress { margin-top: 1rem; }
+.journey-progress__track { overflow: hidden; height: .42rem; border-radius: 999px; background: var(--color-cine-well); }
+.journey-progress__track span { display: block; height: 100%; border-radius: inherit; background: var(--color-cine-cyan); transition: width .35s ease; }
+.journey-progress__meta { margin-top: .4rem; color: var(--color-cine-faint); font-family: var(--font-mono); font-size: .65rem; }
+.journey-stats { margin-top: .9rem; border-block: 1px solid var(--color-cine-border); padding-block: .7rem; }
+.journey-stats div { display: grid; grid-template-columns: auto 1fr; column-gap: .4rem; align-items: center; color: var(--color-cine-cyan); }
+.journey-stats strong { color: var(--color-cine-text); font-family: var(--font-display); font-size: 1rem; }
+.journey-stats span { grid-column: 2; color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .65rem; }
+.journey-badges { display: grid; grid-template-columns: repeat(5, 1fr); gap: .4rem; margin-top: .8rem; }
+.journey-badge { display: grid; justify-items: center; gap: .22rem; padding: .45rem .15rem; border: 1px solid var(--color-cine-border); border-radius: .65rem; color: var(--color-cine-faint); font-family: var(--font-ui); text-align: center; }
+.journey-badge span { color: var(--color-cine-text); font-family: var(--font-mono); font-size: .7rem; }
+.journey-badge small { overflow: hidden; width: 100%; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
+.journey-badge.is-unlocked { border-color: var(--color-cine-cyan); color: var(--color-cine-cyan); }
+.journey-badge.is-locked { opacity: .48; }
+.journey-latest { margin: .8rem 0 0; color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .7rem; line-height: 1.4; }
+.journey-latest span { color: var(--color-cine-muted); }
+.journey-latest b { color: var(--color-cine-cyan); white-space: nowrap; }
+@media (max-width: 760px) { .app-journey-dock { right: 1rem; bottom: 1rem; } }
+
+/* Fluid platform sizing: keep cinematic proportions without viewport-specific magic numbers. */
+.public-home, .app-shell, .cinevo-shell { min-width: 0; }
+.public-nav, .public-footer, .home-closing { padding-inline: clamp(1rem, 4vw, 4.25rem); }
+.public-home h1, .public-home h2, .public-home h3, .public-home p { max-width: 100%; overflow-wrap: anywhere; }
+.home-library-steps, .home-highlights__grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.home-library-steps article, .home-highlight { min-height: clamp(12.5rem, 24vw, 18rem); }
+.public-hero { min-height: max(38rem, min(100svh, 52rem)); padding-block: clamp(7rem, 16vh, 10rem) clamp(4.5rem, 11vh, 7rem); }
+.home-reel, .home-manifesto, .home-highlights, .home-closing, .home-downloads { width: min(1280px, calc(100% - clamp(2rem, 8vw, 8rem))); }
+@media (max-width: 760px) {
+  .public-hero { min-height: max(42rem, 100svh); padding-inline: clamp(1.25rem, 6vw, 2rem); }
+  .public-hero__note { right: clamp(1.25rem, 6vw, 2rem); left: clamp(1.25rem, 6vw, 2rem); }
+  .home-reel, .home-manifesto, .home-highlights, .home-closing, .home-downloads { width: min(100% - 2rem, 80rem); }
 }
+
 
 @layer base {
   button:not(:disabled),

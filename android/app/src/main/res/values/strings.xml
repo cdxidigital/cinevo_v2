@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CINEVO</string>
+    <string name="title_activity_main">CINEVO</string>
+    <string name="package_name">com.cinevo.app</string>
+    <string name="custom_url_scheme">com.cinevo.app</string>
+</resources>
