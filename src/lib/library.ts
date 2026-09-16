@@ -18,6 +18,7 @@ export type LibraryTitle = Title & {
   source: SourceKind;
   sourceLabel: string;
   path?: string;
+  connectionId?: string;
 };
 
 const blobs = new Map<string, string>();
@@ -154,6 +155,8 @@ export function remoteTitle(input: {
   source: "plex" | "jellyfin";
   sourceLabel: string;
   genre?: string;
+  path?: string;
+  connectionId?: string;
 }): LibraryTitle {
   const accent: Accent = input.source === "plex" ? "amber" : "violet";
   return {
@@ -164,7 +167,7 @@ export function remoteTitle(input: {
     runtime: "—",
     genre: input.genre || (input.source === "plex" ? "Plex" : "Jellyfin"),
     genres: [input.source === "plex" ? "Plex" : "Jellyfin"],
-    synopsis: input.synopsis || `Indexed from ${input.sourceLabel}. Playback stays on your media server.`,
+    synopsis: input.synopsis || `Indexed from ${input.sourceLabel}. Play through CINEVO Node on this computer.`,
     cast: [],
     director: input.sourceLabel,
     rating: 0,
@@ -174,6 +177,8 @@ export function remoteTitle(input: {
     accent,
     source: input.source,
     sourceLabel: input.sourceLabel,
+    path: input.path,
+    connectionId: input.connectionId,
   };
 }
 

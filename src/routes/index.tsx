@@ -59,7 +59,7 @@ const HIGHLIGHTS = [
 
 function Home() {
   return (
-    <div className="public-home">
+    <div className="public-home" suppressHydrationWarning>
       <header className="public-nav">
         <Link to="/" className="public-brand" aria-label="CINEVO home">
           <Logo size="md" />

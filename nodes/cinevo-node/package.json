@@ -1,6 +1,6 @@
 {
   "name": "cinevo-node",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "bin": "index.cjs",
   "description": "CINEVO Node — loopback-only companion for private Plex and Jellyfin libraries",

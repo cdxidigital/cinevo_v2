@@ -151,6 +151,20 @@ export async function listNodeFolders(base: string, token: string) {
   return { ok: true as const, folders: (data.folders as Array<{ id: string; path: string; name: string; count: number }>) || [] };
 }
 
+export function canProxyPlay(title: { id: string; source?: string; path?: string }) {
+  if (title.path || title.id.startsWith("node-")) return true;
+  if (title.source === "plex" || title.source === "jellyfin") return true;
+  return /^(plex|jf|jellyfin)-/.test(title.id);
+}
+
+export function nodeStreamUrl(base: string, token: string, id: string, connectionId?: string) {
+  const url = new URL(`${normalizeNodeUrl(base)}/v1/stream`);
+  url.searchParams.set("id", id);
+  url.searchParams.set("token", token);
+  if (connectionId) url.searchParams.set("connectionId", connectionId);
+  return url.toString();
+}
+
 export const INSTALLERS = [
   {
     id: "win",
