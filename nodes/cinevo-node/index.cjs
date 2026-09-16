@@ -147,6 +147,23 @@ function bearer(req) {
   return m ? m[1].trim() : "";
 }
 
+function mediaBaseUrl(value) {
+  const raw = String(value || "").trim().replace(/\/$/, "");
+  if (!raw || raw.includes("\\0")) return null;
+  try {
+    const url = new URL(raw);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
+function isAllowedDashboardRequest(req) {
+  const origin = String(req.headers.origin || "");
+  return !origin || origin === `http://${HOST}:${PORT}` || origin === `http://localhost:${PORT}`;
+}
+
 function requireSession(req, res) {
   const token = bearer(req);
   const session = token ? state.sessions.get(token) : null;
@@ -367,8 +384,8 @@ function parseRange(header, size) {
   return { start, end: Math.min(end, size - 1) };
 }
 
-function sessionFrom(req, url) {
-  const token = bearer(req) || String(url.searchParams.get("token") || "");
+function sessionFrom(req) {
+  const token = bearer(req);
   const session = token ? state.sessions.get(token) : null;
   if (!session || session.expires < Date.now()) return null;
   return session;
@@ -473,7 +490,6 @@ async function plexPlayUrl(conn, ratingKey) {
   if (key && friendly) {
     const href = key.startsWith("http") ? key : `${conn.baseUrl}${key}`;
     const target = new URL(href);
-    target.searchParams.set("X-Plex-Token", conn.token);
     return { url: target.toString(), headers: { "X-Plex-Token": conn.token } };
   }
   const session = crypto.randomBytes(8).toString("hex");
@@ -494,7 +510,6 @@ async function plexPlayUrl(conn, ratingKey) {
     "X-Plex-Client-Identifier": "cinevo-node",
     "X-Plex-Product": "CINEVO",
     "X-Plex-Device": "Node",
-    "X-Plex-Token": conn.token,
   });
   return {
     url: `${conn.baseUrl}/video/:/transcode/universal/start.mp4?${params}`,
@@ -754,7 +769,7 @@ async function handle(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/v1/connections") {
-    const localDash = req.headers["x-cinevo-local"] === "dashboard";
+    const localDash = req.headers["x-cinevo-local"] === "dashboard" && isAllowedDashboardRequest(req);
     if (!localDash && !requireSession(req, res)) return;
     let body;
     try {
@@ -769,19 +784,20 @@ async function handle(req, res) {
       return;
     }
     const now = new Date().toISOString();
+    const baseUrl = provider === "preview" ? "local://preview" : mediaBaseUrl(body.baseUrl);
+    if (provider !== "preview" && !baseUrl) {
+      send(res, 400, { error: "Use a valid HTTP or HTTPS media server address" });
+      return;
+    }
     const conn = {
       id: `conn-${crypto.randomBytes(4).toString("hex")}`,
       provider,
-      baseUrl: String(body.baseUrl || (provider === "preview" ? "local://preview" : "")).replace(/\/$/, ""),
+      baseUrl: baseUrl || "local://preview",
       token: String(body.token || body.password || ""),
       username: String(body.username || ""),
       createdAt: now,
       updatedAt: now,
     };
-    if (provider !== "preview" && !conn.baseUrl) {
-      send(res, 400, { error: "A local server address is required" });
-      return;
-    }
     state.config.connections.push(conn);
     saveConfig(state.config);
     send(res, 200, { id: conn.id, provider: conn.provider, baseUrl: conn.baseUrl });
@@ -925,7 +941,7 @@ async function handle(req, res) {
   }
 
   if ((req.method === "GET" || req.method === "HEAD") && url.pathname === "/v1/stream") {
-    if (!sessionFrom(req, url)) {
+    if (!sessionFrom(req)) {
       send(res, 401, { error: "The local pairing session expired" });
       return;
     }
