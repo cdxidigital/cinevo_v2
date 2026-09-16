@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { Rehydrate } from "@/components/cinevo/rehydrate";
+import { AppNotFoundComponent } from "@/lib/not-found-component";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "CINEVO";
@@ -31,6 +32,7 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  notFoundComponent: AppNotFoundComponent,
   component: () => (
     <html lang="en" suppressHydrationWarning>
       <head>
