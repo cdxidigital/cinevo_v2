@@ -12,7 +12,7 @@ const dist = path.join(root, "dist");
 const out = path.join(repo, "public", "installers");
 const brand = path.join(root, "brand");
 const tools = path.join(root, "tools");
-const VERSION = "0.2.0";
+const VERSION = "0.4.0";
 
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
@@ -247,7 +247,7 @@ const WIN_README = `CINEVO Node for Windows (x64)
 ==============================
 
 Loopback-only companion. Binds 127.0.0.1:48184. Never forwards ports.
-Never streams media. Plex / Jellyfin tokens stay on this PC.
+Proxies Plex media locally with range requests. Plex tokens stay on this PC.
 
 The executable carries the CINEVO icon and an Authenticode signature
 issued as "CINEVO Node". Windows SmartScreen may still prompt until an

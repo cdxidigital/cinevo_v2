@@ -10,7 +10,7 @@ const crypto = require("node:crypto");
 const { Readable } = require("node:stream");
 const { exec } = require("node:child_process");
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.CINEVO_NODE_PORT || 48184);
 const CODE_TTL_MS = 10 * 60 * 1000;
@@ -180,7 +180,7 @@ function dashboardHtml() {
       (c) =>
         `<li><b>${escapeHtml(c.provider)}</b> <span>${escapeHtml(c.baseUrl)}</span></li>`,
     )
-    .join("") || "<li class='empty'>No media servers yet. Add Plex or Jellyfin below — tokens stay on this computer.</li>";
+    .join("") || "<li class='empty'>No Plex servers yet. Add Plex below — tokens stay on this computer.</li>";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -225,7 +225,7 @@ function dashboardHtml() {
     <div class="card">
       <label>PAIRING CODE</label>
       <div class="code">${escapeHtml(code)}</div>
-      <p>Enter this in CINEVO on the same computer. Credentials for Plex or Jellyfin stay here.</p>
+      <p>Enter this in CINEVO on the same computer. Plex credentials stay on this computer.</p>
       <div class="row">
         <form method="post" action="/v1/code/rotate"><button class="ghost" type="submit">New code</button></form>
       </div>
@@ -240,8 +240,8 @@ function dashboardHtml() {
         <label>BASE URL</label>
         <input name="baseUrl" placeholder="http://127.0.0.1:32400" />
         <label>TOKEN / PASSWORD</label>
-        <input name="secret" type="password" placeholder="Plex token or Jellyfin password" />
-        <label>USERNAME (Jellyfin)</label>
+        <input name="secret" type="password" placeholder="Plex token" />
+        <label>USERNAME (optional)</label>
         <input name="username" placeholder="optional" />
         <div class="row"><button type="submit">Save locally</button></div>
       </form>

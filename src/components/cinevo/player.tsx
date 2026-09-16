@@ -109,7 +109,7 @@ export function Player() {
     (title.source === "folder"
       ? "Re-select this folder to play. CINEVO does not store the file."
       : title.source === "plex" || title.source === "jellyfin"
-        ? "Open this title on your server. CINEVO does not proxy playback."
+        ? "Pair CINEVO Node to proxy this Plex stream securely from your server."
         : "No playable file on this device.");
 
   return (
