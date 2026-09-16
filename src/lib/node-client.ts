@@ -1,5 +1,20 @@
 export const DEFAULT_NODE = "http://127.0.0.1:48184";
 
+export function normalizeNodeUrl(value: string) {
+  const raw = value.trim();
+  if (!raw) return DEFAULT_NODE;
+  try {
+    const url = new URL(raw.includes("://") ? raw : `http://${raw}`);
+    if (!['http:', 'https:'].includes(url.protocol)) return DEFAULT_NODE;
+    url.pathname = url.pathname.replace(/\/$/, "");
+    url.search = "";
+    url.hash = "";
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return DEFAULT_NODE;
+  }
+}
+
 export type NodeConnection = {
   id: string;
   provider: "plex" | "jellyfin" | "preview" | string;
@@ -141,22 +156,28 @@ export const INSTALLERS = [
     id: "win",
     label: "Windows",
     arch: "x64",
+    fileType: "ZIP archive",
     href: "/installers/CINEVO-Node-Windows-x64.zip",
-    hint: "Signed · CINEVO icon · loopback exe",
+    hint: "CINEVO icon · loopback exe",
+    steps: ["Download and unzip", "Run CINEVO Node.exe", "Copy the pairing code"],
   },
   {
     id: "mac-arm",
     label: "macOS",
     arch: "Apple Silicon",
+    fileType: "ZIP archive",
     href: "/installers/CINEVO-Node-macOS-Apple-Silicon.zip",
     hint: "CINEVO icon · drag to Applications",
+    steps: ["Download and unzip", "Move Node to Applications", "Open and copy the code"],
   },
   {
     id: "mac-intel",
     label: "macOS",
     arch: "Intel",
+    fileType: "ZIP archive",
     href: "/installers/CINEVO-Node-macOS-Intel.zip",
     hint: "CINEVO icon · drag to Applications",
+    steps: ["Download and unzip", "Move Node to Applications", "Open and copy the code"],
   },
 ];
 

@@ -319,6 +319,7 @@ export const useCinevo = create<CinevoState>()(
       setNoticesOpen: (noticesOpen) => set({ noticesOpen }),
       flash: (toast) => {
         set({ toast });
+        if (typeof window === "undefined") return;
         window.setTimeout(() => {
           if (get().toast === toast) set({ toast: "" });
         }, 2200);

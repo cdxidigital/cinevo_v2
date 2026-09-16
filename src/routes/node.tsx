@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, CheckCircle2, Computer, KeyRound, Link2, LoaderCircle, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
+import { ArrowLeft, CheckCircle2, KeyRound, Link2, LoaderCircle, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { useState } from "react";
 import { InstallerCards } from "@/components/cinevo/installers";
-import { checkNode, DEFAULT_NODE, nodeStatus, pairNode, revokeConnection, type NodeStatus } from "@/lib/node-client";
+import { checkNode, DEFAULT_NODE, nodeStatus, normalizeNodeUrl, pairNode, revokeConnection, type NodeStatus } from "@/lib/node-client";
 import { useCinevo } from "@/lib/cinevo-store";
 import { Logo } from "@/components/cinevo/logo";
 
@@ -20,9 +20,15 @@ function NodePairing() {
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(Boolean(nodeToken));
 
+  const getBaseUrl = () => {
+    const normalized = normalizeNodeUrl(nodeUrl || DEFAULT_NODE);
+    if (normalized !== nodeUrl) setNodeUrl(normalized);
+    return normalized;
+  };
+
   const ping = async () => {
     setLoading(true);
-    const res = await checkNode(nodeUrl || DEFAULT_NODE);
+    const res = await checkNode(getBaseUrl());
     setLoading(false);
     setOk(res.ok);
     setMessage(res.ok ? "CINEVO Node is ready. Enter the code from its dashboard." : res.error);
@@ -34,7 +40,7 @@ function NodePairing() {
       return;
     }
     setLoading(true);
-    const res = await pairNode(nodeUrl || DEFAULT_NODE, code);
+    const res = await pairNode(getBaseUrl(), code);
     if (!res.ok) {
       setLoading(false);
       setOk(false);
@@ -42,7 +48,7 @@ function NodePairing() {
       return;
     }
     setNodeSession(res.token, res.deviceId);
-    const st = await nodeStatus(nodeUrl || DEFAULT_NODE, res.token);
+    const st = await nodeStatus(getBaseUrl(), res.token);
     setLoading(false);
     if (st.ok) setStatus(st.status);
     setOk(true);
@@ -52,7 +58,7 @@ function NodePairing() {
   const refresh = async () => {
     if (!nodeToken) return;
     setLoading(true);
-    const st = await nodeStatus(nodeUrl || DEFAULT_NODE, nodeToken);
+    const st = await nodeStatus(getBaseUrl(), nodeToken);
     setLoading(false);
     if (!st.ok) {
       clearNodeSession();
