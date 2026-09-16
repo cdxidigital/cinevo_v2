@@ -1,6 +1,31 @@
 @import "tailwindcss";
 
 
+/* Cinematic journey: compact reward telemetry that stays useful, not noisy. */
+.app-journey-dock { position: fixed; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 2.5rem); z-index: 20; width: min(23rem, calc(100vw - 2rem)); }
+.journey-panel { border: 1px solid var(--color-cine-border); background: var(--color-cine-elevated); backdrop-filter: blur(18px); border-radius: 1rem; padding: 1rem; box-shadow: 0 1.5rem 4rem rgb(0 0 0 / .28); }
+.journey-panel__header, .journey-progress__meta, .journey-stats, .journey-latest { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.journey-panel__header h2 { margin: .2rem 0 0; font-family: var(--font-display); font-size: 1.15rem; }
+.journey-level { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-cine-cyan); font-family: var(--font-ui); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.journey-progress { margin-top: 1rem; }
+.journey-progress__track { overflow: hidden; height: .42rem; border-radius: 999px; background: var(--color-cine-well); }
+.journey-progress__track span { display: block; height: 100%; border-radius: inherit; background: var(--color-cine-cyan); transition: width .35s ease; }
+.journey-progress__meta { margin-top: .4rem; color: var(--color-cine-faint); font-family: var(--font-mono); font-size: .65rem; }
+.journey-stats { margin-top: .9rem; border-block: 1px solid var(--color-cine-border); padding-block: .7rem; }
+.journey-stats div { display: grid; grid-template-columns: auto 1fr; column-gap: .4rem; align-items: center; color: var(--color-cine-cyan); }
+.journey-stats strong { color: var(--color-cine-text); font-family: var(--font-display); font-size: 1rem; }
+.journey-stats span { grid-column: 2; color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .65rem; }
+.journey-badges { display: grid; grid-template-columns: repeat(5, 1fr); gap: .4rem; margin-top: .8rem; }
+.journey-badge { display: grid; justify-items: center; gap: .22rem; padding: .45rem .15rem; border: 1px solid var(--color-cine-border); border-radius: .65rem; color: var(--color-cine-faint); font-family: var(--font-ui); text-align: center; }
+.journey-badge span { color: var(--color-cine-text); font-family: var(--font-mono); font-size: .7rem; }
+.journey-badge small { overflow: hidden; width: 100%; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
+.journey-badge.is-unlocked { border-color: var(--color-cine-cyan); color: var(--color-cine-cyan); }
+.journey-badge.is-locked { opacity: .48; }
+.journey-latest { margin: .8rem 0 0; color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .7rem; line-height: 1.4; }
+.journey-latest span { color: var(--color-cine-muted); }
+.journey-latest b { color: var(--color-cine-cyan); white-space: nowrap; }
+@media (max-width: 760px) { .app-journey-dock { right: 1rem; bottom: 1rem; } }
+
 /* Fluid platform sizing: keep cinematic proportions without viewport-specific magic numbers. */
 .public-home, .app-shell, .cinevo-shell { min-width: 0; }
 .public-nav, .public-footer, .home-closing { padding-inline: clamp(1rem, 4vw, 4.25rem); }

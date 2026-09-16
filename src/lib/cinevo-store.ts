@@ -9,6 +9,7 @@ import {
   sanitizeDashboardWidgets,
   type DashboardWidgetId,
 } from "./dashboard";
+import { awardJourney, DEFAULT_JOURNEY, type JourneyState } from "./journey";
 
 export type Room = "stage" | "browse" | "movies" | "shows" | "sidebar";
 
@@ -92,6 +93,7 @@ type CinevoState = {
   localTitles: LibraryTitle[];
   remoteTitles: LibraryTitle[];
   sourceFilter: SourceFilter;
+  journey: JourneyState;
   setRoom: (room: Room) => void;
   openTitle: (id: string) => void;
   closeTitle: () => void;
@@ -137,6 +139,7 @@ type CinevoState = {
   removeSource: (id: string) => void;
   setSourceFilter: (filter: SourceFilter) => void;
   clearLocalData: () => void;
+  awardJourney: (kind: JourneyState["events"][number]["kind"], label: string, xp: number, key: string) => void;
 };
 
 export const DEFAULT_LIBRARIES: Library[] = [];
@@ -239,6 +242,7 @@ export const useCinevo = create<CinevoState>()(
       nodeDevice: "",
       plexClientId: "",
       ...FRESH,
+      journey: DEFAULT_JOURNEY,
       setRoom: (room) => set({ room, selectedId: null }),
       openTitle: (id) => set({ selectedId: id }),
       closeTitle: () => set({ selectedId: null }),
@@ -260,13 +264,22 @@ export const useCinevo = create<CinevoState>()(
         }
         set({ playing: !get().playing });
       },
-      setProgress: (id, value) =>
-        set({ progress: { ...get().progress, [id]: Math.max(0, Math.min(100, value)) } }),
+      setProgress: (id, value) => {
+        const next = Math.max(0, Math.min(100, value));
+        const previous = get().progress[id] ?? 0;
+        set({ progress: { ...get().progress, [id]: next } });
+        if (previous < 100 && next >= 100) {
+          get().awardJourney("watch", "Completed a title", 40, `watch:${id}`);
+        }
+      },
+      awardJourney: (kind, label, xp, key) =>
+        set({ journey: awardJourney(get().journey, kind, label, xp, key) }),
       toggleFavorite: (id) => {
         const has = get().favorites.includes(id);
         set({
           favorites: has ? get().favorites.filter((x) => x !== id) : [...get().favorites, id],
         });
+        if (!has) get().awardJourney("favorite", "Saved a title to My List", 10, `favorite:${id}`);
         get().flash(has ? "Removed from My List" : "Saved to My List");
       },
       addTonight: (id) => {
@@ -291,11 +304,13 @@ export const useCinevo = create<CinevoState>()(
             ...get().notes,
           ].slice(0, 40),
         });
+        get().awardJourney("note", "Added a private note", 12, `note:${titleId}:${text}`);
         get().flash("Note saved");
       },
       removeNote: (id) => set({ notes: get().notes.filter((n) => n.id !== id) }),
       startParty: (titleId, withName) => {
         set({ party: { titleId, with: withName.trim() } });
+        get().awardJourney("party", "Started a watch party", 25, `party:${titleId}:${withName.trim()}`);
         get().play(titleId);
         get().flash(withName.trim() ? `Watching with ${withName.trim()}` : "Private watch started");
       },
@@ -467,6 +482,7 @@ export const useCinevo = create<CinevoState>()(
       clearLocalData: () => {
         set({
           ...FRESH,
+          journey: DEFAULT_JOURNEY,
           libraries: [],
           searchOpen: false,
           coreOpen: false,
@@ -533,6 +549,12 @@ export const useCinevo = create<CinevoState>()(
             (p.sourceFilter === "folder" || p.sourceFilter === "plex" || p.sourceFilter === "jellyfin")
               ? p.sourceFilter
               : "all",
+          journey: {
+            ...DEFAULT_JOURNEY,
+            ...(p.journey ?? {}),
+            completedIds: Array.isArray(p.journey?.completedIds) ? p.journey.completedIds : [],
+            events: Array.isArray(p.journey?.events) ? p.journey.events : [],
+          },
           prefs: {
             ...DEFAULT_PREFS,
             ...p.prefs,
@@ -544,6 +566,7 @@ export const useCinevo = create<CinevoState>()(
       },
       partialize: (s) => ({
         progress: s.progress,
+        journey: s.journey,
         favorites: s.favorites,
         prefs: s.prefs,
         libraries: s.libraries,
