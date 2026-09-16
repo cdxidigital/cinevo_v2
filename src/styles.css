@@ -1767,6 +1767,65 @@ html[data-theme="iris"] .house-ambient {
   filter: saturate(0.85) contrast(1.04) brightness(1);
 }
 
+/* Shared page rhythm keeps utility routes familiar with the main CINEVO shell. */
+.cinevo-page {
+  --color-cine-bg: #0b0f14;
+  --color-cine-elevated: #111820;
+  --color-cine-surface: #151d26;
+  --color-cine-well: #0e141b;
+  --color-cine-text: #f7f9fc;
+  --color-cine-muted: #b2bdca;
+  --color-cine-faint: #8d9aaa;
+  --color-cine-border: rgb(255 255 255 / 13%);
+  --color-cine-line: rgb(255 255 255 / 16%);
+  --color-cine-cyan: #2d8cff;
+  --color-cine-violet: #2d8cff;
+  min-height: 100svh;
+  color: var(--color-cine-text);
+  background:
+    radial-gradient(circle at 75% 0%, color-mix(in srgb, var(--color-cine-cyan) 8%, transparent), transparent 30rem),
+    var(--color-cine-bg);
+}
+.cinevo-page > nav {
+  min-height: 4.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-cine-border) 78%, transparent);
+  background: color-mix(in srgb, var(--color-cine-bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+}
+.cinevo-node-page > main {
+  padding-top: clamp(3rem, 8vw, 6rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+.cinevo-node-page h1,
+.cinevo-node-page h2,
+.cinevo-node-page h3 {
+  color: var(--color-cine-text);
+  text-wrap: balance;
+}
+.cinevo-node-page p {
+  line-height: 1.65;
+}
+.cinevo-node-page aside,
+.cinevo-node-page article {
+  border-color: var(--color-cine-border);
+  background: color-mix(in srgb, var(--color-cine-elevated) 92%, transparent);
+}
+.cinevo-node-page input:focus-visible,
+.cinevo-node-page button:focus-visible,
+.cinevo-node-page a:focus-visible {
+  outline: 2px solid var(--color-cine-cyan);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .cinevo-page > nav {
+    min-height: 4rem;
+    padding-block: .7rem;
+  }
+  .cinevo-node-page > main {
+    padding-top: 2rem;
+  }
+}
+
 /* ── v5 public landing ── */
 .public-home { min-height: 100vh; overflow: hidden; background: #030304; color: #f9f7fc; }
 .public-nav {
