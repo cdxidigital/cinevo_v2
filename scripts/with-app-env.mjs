@@ -111,6 +111,9 @@ function main(argv) {
     process.exit(2);
   }
   const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
+  if (!env.VITE_CLERK_PUBLISHABLE_KEY && env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    env.VITE_CLERK_PUBLISHABLE_KEY = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  }
   const child = spawn(command, args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {

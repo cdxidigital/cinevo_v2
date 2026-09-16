@@ -193,3 +193,13 @@
  ╰─────────────────────────────────────╯
 
   ➜  Local:   http://127.0.0.1:8081/
+
+> preview
+> node scripts/with-app-env.mjs vite preview
+
+error when starting preview server:
+Error: Cannot load nitro build info. Make sure to build first.
+    at startPreview (file:///vercel/share/v0-project/node_modules/nitro/dist/_chunks/nitro2.mjs:7:24)
+    at async BasicMinimalPluginContext.configurePreviewServer (file:///vercel/share/v0-project/node_modules/nitro/dist/vite.mjs:140:20)
+    at async preview (file:///vercel/share/v0-project/node_modules/vite/dist/node/chunks/node.js:35843:91)
+    at async CAC.<anonymous> (file:///vercel/share/v0-project/node_modules/vite/dist/node/cli.js:807:18)

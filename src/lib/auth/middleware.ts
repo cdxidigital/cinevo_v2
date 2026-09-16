@@ -40,8 +40,7 @@ export const authMiddleware = createMiddleware({ type: "function" })
     // it, and so Vite does not ship `@tanstack/react-start/server` to the browser.
     const { assertSameSiteRequest } = await import("./isolation.server");
     const { requireUserId } = await import("./verify.server");
-    // Reject scripted cross-site/sibling requests before touching per-user data.
     assertSameSiteRequest();
-    const userId = await requireUserId(context.bearerToken);
+    const userId = await requireUserId();
     return next({ context: { userId } });
   });
