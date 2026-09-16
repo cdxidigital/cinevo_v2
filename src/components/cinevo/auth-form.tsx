@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, LockKeyhole, Mail, UserRound } from "lucide-react";
-import { authClient } from "@/lib/auth/client";
+import { GROK_PROVIDERS, signIn as signInWithProvider, authClient } from "@/lib/auth/client";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const navigate = useNavigate();
@@ -16,19 +16,49 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     event.preventDefault();
     setPending(true);
     setError("");
-    const result = isSignup
-      ? await authClient.signUp.email({ name: name.trim(), email: email.trim(), password })
-      : await authClient.signIn.email({ email: email.trim(), password });
-    setPending(false);
-    if (result.error) {
-      setError("We could not complete that request. Check your details and try again.");
-      return;
+    try {
+      const result = isSignup
+        ? await authClient.signUp.email({ name: name.trim(), email: email.trim(), password })
+        : await authClient.signIn.email({ email: email.trim(), password });
+      if (result.error) {
+        setError("We could not complete that request. Check your details and try again.");
+        return;
+      }
+      await navigate({ to: "/app" });
+    } catch {
+      setError("We could not reach CINEVO. Check your connection and try again.");
+    } finally {
+      setPending(false);
     }
-    await navigate({ to: "/app" });
+  }
+
+  async function startSocial(providerId: string) {
+    setPending(true);
+    setError("");
+    try {
+      await signInWithProvider(providerId, { callbackURL: "/app", errorCallbackURL: window.location.pathname });
+    } catch (socialError) {
+      setPending(false);
+      setError(socialError instanceof Error ? socialError.message : "Social sign-in could not be started.");
+    }
   }
 
   return (
     <form className="auth-form" onSubmit={submit}>
+      <div className="auth-socials" aria-label="Social sign-in options">
+        {GROK_PROVIDERS.map((provider) => (
+          <button
+            className="auth-social"
+            key={provider.providerId}
+            type="button"
+            onClick={() => void startSocial(provider.providerId)}
+            disabled={pending}
+          >
+            Continue with {provider.label}
+          </button>
+        ))}
+      </div>
+      <div className="auth-divider"><span>or use email</span></div>
       {isSignup ? (
         <label>
           <span>Name</span>
