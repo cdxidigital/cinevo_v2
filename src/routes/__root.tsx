@@ -1,5 +1,5 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
-import { AuthProvider } from "@/lib/auth/provider";
+import { ClientOnly, createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { ClerkProvider } from "@clerk/tanstack-react-start";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { Rehydrate } from "@/components/cinevo/rehydrate";
 import { AppNotFoundComponent } from "@/lib/not-found-component";
@@ -40,10 +40,12 @@ export const Route = createRootRoute({
       </head>
       <body className="bg-cine-bg text-cine-text antialiased">
         <PreviewHostBridge />
-        <Rehydrate />
-        <AuthProvider>
+        <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+          <ClientOnly>
+            <Rehydrate />
+          </ClientOnly>
           <Outlet />
-        </AuthProvider>
+        </ClerkProvider>
         <Scripts />
       </body>
     </html>
