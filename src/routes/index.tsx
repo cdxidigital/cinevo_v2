@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowRight, Check, Play, ShieldCheck, Sparkles } from "lucide-react";
 import { InstallerCards } from "@/components/cinevo/installers";
 import { Logo } from "@/components/cinevo/logo";
+import { AndroidBuildInstructions, PlatformDownloads } from "@/components/cinevo/platform-downloads";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -198,6 +199,14 @@ function Home() {
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="home-platforms" id="platforms">
+          <span className="public-kicker">WATCH WHERE YOU ARE</span>
+          <h2 className="mt-4 font-display text-4xl font-bold tracking-tight md:text-5xl">Your library, from couch to commute.</h2>
+          <p className="mt-4 mb-8 max-w-xl text-sm text-[#a9a1ae]">Use the web app anywhere, or package the same CINEVO experience for Android phones and Android TV.</p>
+          <PlatformDownloads />
+          <AndroidBuildInstructions />
         </section>
 
         <section className="home-downloads" id="downloads">

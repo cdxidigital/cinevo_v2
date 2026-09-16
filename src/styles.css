@@ -1,6 +1,22 @@
 @import "tailwindcss";
 
 
+/* Platform delivery cards keep web, phone, and TV paths equally discoverable. */
+.home-platforms { width: min(1280px, calc(100% - clamp(2rem, 8vw, 8rem))); margin: 0 auto; padding-block: clamp(4rem, 9vw, 8rem); }
+.platform-downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; }
+.platform-card { display: grid; gap: .8rem; min-height: 10rem; padding: 1.1rem; border: 1px solid var(--color-cine-border); border-radius: 1rem; background: var(--color-cine-surface); color: var(--color-cine-cyan); }
+.platform-card h3 { margin-top: .7rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: 1.15rem; }
+.platform-card p { margin-top: .2rem; color: var(--color-cine-faint); font-size: .78rem; }
+.platform-card a { display: inline-flex; align-items: center; gap: .35rem; margin-top: auto; color: var(--color-cine-cyan); font-family: var(--font-ui); font-size: .75rem; font-weight: 700; }
+.android-build-card { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; margin-top: 1rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--color-cine-border); border-radius: 1rem; background: var(--color-cine-elevated); }
+.android-build-card h3 { margin-top: .65rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); }
+.android-build-card p { margin-top: .65rem; color: var(--color-cine-faint); font-size: .85rem; line-height: 1.6; }
+.android-build-card ol { display: grid; gap: .75rem; align-content: center; }
+.android-build-card li { display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem; align-items: start; color: var(--color-cine-faint); font-size: .78rem; }
+.android-build-card li b { color: var(--color-cine-cyan); font-family: var(--font-mono); }
+.android-build-card code { color: var(--color-cine-text); font-family: var(--font-mono); font-size: .7rem; }
+@media (max-width: 760px) { .android-build-card { grid-template-columns: 1fr; } }
+
 /* Cinematic journey: compact reward telemetry that stays useful, not noisy. */
 .app-journey-dock { position: fixed; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 2.5rem); z-index: 20; width: min(23rem, calc(100vw - 2rem)); }
 .journey-panel { border: 1px solid var(--color-cine-border); background: var(--color-cine-elevated); backdrop-filter: blur(18px); border-radius: 1rem; padding: 1rem; box-shadow: 0 1.5rem 4rem rgb(0 0 0 / .28); }
