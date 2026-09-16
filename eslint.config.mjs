@@ -41,7 +41,8 @@ export default tseslint.config(
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      "@typescript-eslint/no-explicit-any": "off",
+      // Warn on 'any', don't allow silently. Use @ts-expect-error + comment for justified cases.
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   // Disable rules that conflict with Prettier formatting.
