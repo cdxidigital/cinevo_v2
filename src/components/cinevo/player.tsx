@@ -22,20 +22,43 @@ export function Player() {
   const [muted, setMuted] = useState(true);
   const [chrome, setChrome] = useState(true);
   const localFile = title ? mediaUrl(title.id) : undefined;
-  const file = localFile ?? (title && nodeToken && (title.source === "plex" || title.source === "jellyfin")
-    ? nodeStreamUrl(nodeUrl, nodeToken, title.id, title.connectionId)
-    : undefined);
+  const streamUrl = getStreamUrl();
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !file) return;
+    if (!video) return;
+    const src = localFile ?? streamUrl;
+    if (!src) {
+      video.src = "";
+      return;
+    }
+    video.src = src;
+    // For stream URLs, add Authorization header via fetch to keep token out of URL
+    if (streamUrl && nodeToken) {
+      video.addEventListener("play", () => {
+        if (video.src === streamUrl) {
+          fetch(streamUrl, { headers: { Authorization: `Bearer ${nodeToken}` } })
+            .then((res) => res.blob())
+            .then((blob) => {
+              video.src = URL.createObjectURL(blob);
+            })
+            .catch(() => {
+              // Fallback: use URL-based auth if header-based fails
+              const fallback = new URL(streamUrl);
+              fallback.searchParams.set("token", nodeToken);
+              video.src = fallback.toString();
+            });
+        }
+      });
+    }
     video.muted = muted;
     if (playing) void video.play().catch(() => useCinevo.setState({ playing: false }));
     else video.pause();
-  }, [playing, file, playingId, muted]);
+  }, [playing, streamUrl, localFile, playingId, muted, nodeToken]);
 
   useEffect(() => {
-    if (!playing || !file) {
+    const src = localFile ?? streamUrl;
+    if (!playing || !src) {
       setChrome(true);
       return;
     }
@@ -52,7 +75,15 @@ export function Player() {
       window.removeEventListener("mousemove", bump);
       window.removeEventListener("touchstart", bump);
     };
-  }, [playing, file]);
+  }, [playing, localFile, streamUrl]);
+
+  const getStreamUrl = () => {
+    if (!localFile) return localFile;
+    if (!title || !nodeToken) return undefined;
+    if (title.source !== "plex" && title.source !== "jellyfin") return undefined;
+    const streamData = nodeStreamUrl(nodeUrl, nodeToken, title.id, title.connectionId);
+    return streamData.url;
+  };
 
   const seek = (value: number) => {
     if (!title) return;
@@ -66,14 +97,15 @@ export function Player() {
   const onToggle = () => {
     if (!title) return;
     const video = videoRef.current;
-    if ((progress >= 100 || video?.ended) && video && file) {
+    const src = localFile ?? streamUrl;
+    if ((progress >= 100 || video?.ended) && video && src) {
       video.currentTime = 0;
       setProgress(title.id, 0);
       useCinevo.setState({ playing: true });
       void video.play().catch(() => useCinevo.setState({ playing: false }));
       return;
     }
-    if (video && file) {
+    if (video && src) {
       if (video.paused) {
         useCinevo.setState({ playing: true });
         void video.play().catch(() => useCinevo.setState({ playing: false }));
