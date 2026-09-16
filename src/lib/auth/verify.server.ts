@@ -1,13 +1,11 @@
-import { auth } from "@clerk/tanstack-react-start/server";
+import { auth, clerkClient } from "@clerk/tanstack-react-start/server";
 
 /**
  * Server-side session resolution (server-only).
  *
- * Because this app runs its OWN Better Auth at same-origin `/api/auth/*`, the
- * session cookie is sent with every request to this app — server functions AND
- * SSR loaders included. So we resolve the user straight from the request cookies
- * via `auth.api.getSession` (no client-minted JWT needed). Never trust a
- * client-supplied user id — only the result of this verification.
+ * Clerk resolves the current session from the request context established by
+ * Clerk middleware. Never trust a client-supplied user id; only use the verified
+ * identity returned by Clerk.
  */
 
 export const authConfigured = true;
@@ -28,31 +26,22 @@ export class UnauthorizedError extends Error {
 export type VerifiedUser = { id: string; email: string | null };
 
 /**
- * Resolve the signed-in user from the current request, or `null` when auth isn't
- * configured / nobody is signed in. Safe to call from server functions and SSR
- * loaders.
+ * Resolve the signed-in user from the current Clerk request, or `null` when
+ * nobody is signed in. Safe to call from server functions and SSR loaders.
  *
- * `bearerToken` is for the LIVE PREVIEW: the app runs in a partitioned iframe
- * whose cookies don't reach the server, so `authMiddleware` forwards the session
- * as a bearer token, which we present as `Authorization: Bearer …` (the `bearer`
- * plugin resolves it). When deployed no token is passed and the cookie is used.
  */
 export async function getSessionUser(): Promise<VerifiedUser | null> {
   const session = await auth();
   if (!session.userId) return null;
-  return { id: session.userId, email: null };
+  const user = await clerkClient().users.getUser(session.userId);
+  return { id: session.userId, email: user.primaryEmailAddress?.emailAddress ?? null };
 }
 
 /**
  * Resolve the current user id for a server function, or throw when unauthorized.
  * Prefer `authMiddleware` (`./middleware`), which calls this for you.
- * - Auth enabled -> the verified session user id; throws
- *   `UnauthorizedError` when signed out. Works in the sandbox preview too (real
- *   sign-in via the baked preview client).
- * - Auth disabled (`VITE_AUTH_ENABLED=false`) + `DATABASE_URL` set -> throw (fail
- *   closed): one shared dev user on a real database would let every visitor
- *   read/write everyone's rows.
- * - Auth disabled + no database -> the shared dev user id.
+ * Throws `UnauthorizedError` when the caller is signed out; otherwise returns
+ * the verified Clerk user id.
  */
 export async function requireUserId(): Promise<string> {
   const user = await getSessionUser();

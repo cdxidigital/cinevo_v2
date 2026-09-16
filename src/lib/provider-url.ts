@@ -4,13 +4,17 @@ import { isIP } from "node:net";
 const blockedHostnames = new Set(["localhost", "localhost.localdomain", "metadata.google.internal"]);
 
 function isPrivateIpv4(address: string) {
-  const [a, b] = address.split(".").map(Number);
-  return a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a === 0;
+  const parts = address.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return true;
+  const [a, b, c] = parts;
+  return a === 0 || a === 10 || a === 100 && b >= 64 && b <= 127 || a === 127 || a === 169 && b === 254 || a === 172 && b >= 16 && b <= 31 || a === 192 && b === 0 && c === 0 || a === 192 && b === 0 && c === 2 || a === 192 && b === 168 || a === 198 && (b === 18 || b === 19) || a === 198 && b === 51 && c === 100 || a === 203 && b === 0 && c === 113 || a >= 224;
 }
 
 function isPrivateIpv6(address: string) {
-  const normalized = address.toLowerCase();
-  return normalized === "::1" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb");
+  const normalized = address.toLowerCase().split("%")[0];
+  if (normalized === "::1" || normalized === "::" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb")) return true;
+  const mapped = normalized.match(/^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)$/);
+  return Boolean(mapped && isPrivateIpv4(mapped[1]));
 }
 
 export async function assertPublicProviderUrl(value: string) {

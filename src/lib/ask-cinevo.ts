@@ -1,4 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "./auth/middleware";
+
+const recentRequests = new Map<string, number[]>();
+function enforceRequestLimit(userId: string) {
+  const now = Date.now();
+  const active = (recentRequests.get(userId) ?? []).filter((time) => now - time < 60_000);
+  if (active.length >= 10) throw new Error("Concierge request limit reached. Try again shortly.");
+  active.push(now);
+  recentRequests.set(userId, active);
+}
 
 type CatalogRow = {
   title: string;
@@ -10,8 +20,21 @@ type CatalogRow = {
 };
 
 export const askCinevo = createServerFn({ method: "POST" })
-  .validator((input: { question: string; titles?: CatalogRow[] }) => input)
-  .handler(async ({ data }) => {
+  .middleware([authMiddleware])
+  .validator((input: { question: string; titles?: CatalogRow[] }) => {
+    if (!input || typeof input !== "object" || typeof input.question !== "string") throw new Error("Invalid concierge request");
+    const titles = Array.isArray(input.titles) ? input.titles.slice(0, 80).map((title) => ({
+      title: String(title?.title ?? "").trim().slice(0, 180),
+      year: String(title?.year ?? "").slice(0, 20),
+      kind: String(title?.kind ?? "").slice(0, 40),
+      genre: String(title?.genre ?? "").slice(0, 120),
+      rating: Number.isFinite(Number(title?.rating)) ? Number(title.rating) : 0,
+      synopsis: String(title?.synopsis ?? "").slice(0, 600),
+    })).filter((title) => title.title) : [];
+    return { question: input.question.trim().slice(0, 400), titles };
+  })
+  .handler(async ({ data, context }) => {
+    enforceRequestLimit(context.userId);
     const question = data.question.trim().slice(0, 400);
     if (!question) return { ok: false as const, error: "Ask something first." };
 
