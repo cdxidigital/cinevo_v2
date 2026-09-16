@@ -98,7 +98,7 @@ function Home() {
               <br />
               <em>Your moment.</em>
             </h1>
-            <p>{HERO_DESCRIPTION}</p>
+            <p suppressHydrationWarning>{HERO_DESCRIPTION}</p>
             <div className="public-hero__actions">
               <Link to="/app" className="public-primary">
                 <Play size={15} fill="currentColor" /> Create your library
