@@ -29,7 +29,8 @@
 @media (max-width: 760px) { .android-build-card { grid-template-columns: 1fr; } }
 
 /* Cinematic journey: compact reward telemetry that stays useful, not noisy. */
-.app-journey-dock { position: fixed; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 2.5rem); z-index: 20; width: min(23rem, calc(100vw - 2rem)); }
+.app-journey-dock { position: fixed; right: clamp(1rem, 3vw, 3rem); bottom: clamp(1rem, 3vw, 2.5rem); z-index: 20; width: min(23rem, calc(100vw - 2rem)); pointer-events: none; }
+.app-journey-dock .journey-panel { pointer-events: auto; }
 .journey-panel { border: 1px solid var(--color-cine-border); background: var(--color-cine-elevated); backdrop-filter: blur(18px); border-radius: 1rem; padding: 1rem; box-shadow: 0 1.5rem 4rem rgb(0 0 0 / .28); }
 .journey-panel__header, .journey-progress__meta, .journey-stats, .journey-latest { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
 .journey-panel__header h2 { margin: .2rem 0 0; font-family: var(--font-display); font-size: 1.15rem; }
@@ -51,11 +52,32 @@
 .journey-latest { margin: .8rem 0 0; color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .7rem; line-height: 1.4; }
 .journey-latest span { color: var(--color-cine-muted); }
 .journey-latest b { color: var(--color-cine-cyan); white-space: nowrap; }
-@media (max-width: 760px) { .app-journey-dock { right: 1rem; bottom: 1rem; } }
+@media (max-width: 760px) {
+  .app-journey-dock { right: .75rem; bottom: .75rem; width: min(22rem, calc(100vw - 1.5rem)); }
+  .journey-panel { padding: .85rem; }
+  .journey-badges { gap: .3rem; }
+}
+@media (min-width: 1100px) { .app-journey-dock { right: 2rem; bottom: 2rem; } }
 
 /* Fluid platform sizing: keep cinematic proportions without viewport-specific magic numbers. */
 .public-home, .app-shell, .cinevo-shell { min-width: 0; }
+.public-home { background: radial-gradient(circle at 68% 10%, color-mix(in srgb, var(--color-cine-cyan) 8%, transparent), transparent 30rem), var(--color-cine-bg); }
+.public-nav { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid color-mix(in srgb, var(--color-cine-border) 72%, transparent); background: color-mix(in srgb, var(--color-cine-bg) 86%, transparent); backdrop-filter: blur(18px); }
+.public-nav a, .public-nav button { transition: color .2s ease, border-color .2s ease, background-color .2s ease, transform .2s ease; }
+.public-nav a:hover, .public-nav button:hover { color: var(--color-cine-text); }
+.public-hero__content { max-width: 52rem; }
+.public-hero h1 { max-width: 10ch; text-wrap: balance; letter-spacing: -.04em; }
+.public-hero p { max-width: 42rem; color: var(--color-cine-faint); line-height: 1.75; }
+.home-reel, .home-manifesto, .home-highlights, .home-platforms, .home-closing, .home-downloads { scroll-margin-top: 6rem; }
+.home-manifesto, .home-highlights, .home-platforms, .home-downloads { border-top: 1px solid color-mix(in srgb, var(--color-cine-border) 72%, transparent); }
+.platform-card, .home-highlight, .home-library-steps article { transition: border-color .2s ease, transform .2s ease, background-color .2s ease; }
+.platform-card:hover, .home-highlight:hover, .home-library-steps article:hover { border-color: var(--color-cine-cyan); transform: translateY(-2px); }
+.cinevo-action:focus-visible, .platform-card a:focus-visible, .public-nav a:focus-visible, .public-nav button:focus-visible { outline: 2px solid var(--color-cine-cyan); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
 .public-nav, .public-footer, .home-closing { padding-inline: clamp(1rem, 4vw, 4.25rem); }
+.public-nav { min-height: 4.5rem; }
+.public-nav > * { min-width: 0; }
 .public-home h1, .public-home h2, .public-home h3, .public-home p { max-width: 100%; overflow-wrap: anywhere; }
 .home-library-steps, .home-highlights__grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
 .home-library-steps article, .home-highlight { min-height: clamp(12.5rem, 24vw, 18rem); }
