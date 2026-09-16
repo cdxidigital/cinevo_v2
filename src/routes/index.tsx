@@ -13,6 +13,9 @@ const NAV = [
   { label: "CINEVO Core", href: "/app" },
 ];
 
+const HERO_DESCRIPTION =
+  "CINEVO brings every library you control into one considered cinematic space. Create your free account once, connect Plex or your friends' servers once, and return to the same collection on every screen.";
+
 const STEPS = [
   { n: "01", t: "Connect a server", d: "Add a folder on this computer, sign in with Plex, or pair CINEVO Node for Jellyfin." },
   { n: "02", t: "Choose sections", d: "Select only the movie and series libraries you want CINEVO to index." },
@@ -95,10 +98,7 @@ function Home() {
               <br />
               <em>Your moment.</em>
             </h1>
-            <p>
-              CINEVO brings every library you control into one considered cinematic space. Create your free account once,
-              connect Plex or your friends&apos; servers once, and return to the same collection on every screen.
-            </p>
+            <p>{HERO_DESCRIPTION}</p>
             <div className="public-hero__actions">
               <Link to="/app" className="public-primary">
                 <Play size={15} fill="currentColor" /> Create your library
