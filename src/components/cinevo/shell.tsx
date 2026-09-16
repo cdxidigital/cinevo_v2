@@ -1,15 +1,15 @@
-import { Menu, Search, Settings2, X } from "lucide-react";
+import { Menu, Palette, Search, Settings2, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useCinevo, type Room } from "@/lib/cinevo-store";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 
-const NAV: { id: Room; label: string }[] = [
-  { id: "stage", label: "Home" },
-  { id: "movies", label: "Movies" },
-  { id: "shows", label: "TV" },
-  { id: "sidebar", label: "Library" },
+const NAV: { id: Room; label: string; icon: typeof Sparkles }[] = [
+  { id: "stage", label: "Home", icon: Sparkles },
+  { id: "movies", label: "Movies", icon: Palette },
+  { id: "shows", label: "Series", icon: Palette },
+  { id: "sidebar", label: "Library", icon: Palette },
 ];
 
 export function Shell({
@@ -67,6 +67,7 @@ export function Shell({
               className={cn(room === item.id && "is-on")}
               aria-current={room === item.id ? "page" : undefined}
             >
+              <item.icon aria-hidden="true" />
               {item.label}
             </button>
           ))}
@@ -118,6 +119,7 @@ export function Shell({
                   )}
                   aria-current={room === item.id ? "page" : undefined}
                 >
+                  <item.icon aria-hidden="true" />
                   {item.label}
                 </button>
               ))}

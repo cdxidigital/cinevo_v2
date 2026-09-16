@@ -2002,6 +2002,23 @@ html[data-theme="iris"] .house-ambient {
 .public-footer a { color: inherit; text-decoration: none; }
 .public-footer > a:last-child { display: inline-flex; gap: 7px; align-items: center; color: #adeeff; font-size: 11px; font-weight: 700; }
 
+/* Plex-inspired Cinevo chrome: quiet navigation, deep content wells, bright focus. */
+.cinevo-house { background: linear-gradient(180deg, color-mix(in srgb, var(--color-cine-bg) 88%, #101826), var(--color-cine-bg) 32rem); }
+.house-still { opacity: .55; background: radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--color-cine-cyan) 22%, transparent), transparent 42rem); }
+.top-nav { border-color: color-mix(in srgb, var(--color-cine-border) 70%, transparent); background: color-mix(in srgb, var(--color-cine-bg) 72%, transparent); box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%); }
+.top-nav__links button { display: inline-flex; align-items: center; gap: .4rem; border-radius: .55rem; }
+.top-nav__links button:hover, .top-nav__links button.is-on { background: color-mix(in srgb, var(--color-cine-surface) 80%, transparent); }
+.top-nav__links button svg { width: .82rem; opacity: .7; }
+.top-nav__core { background: color-mix(in srgb, var(--color-cine-surface) 76%, transparent); }
+.house-stage { padding-bottom: 9rem; }
+.house-board { border-color: color-mix(in srgb, var(--color-cine-border) 80%, transparent); box-shadow: 0 2rem 6rem rgb(0 0 0 / 22%); }
+.house-rails { display: grid; gap: 2.5rem; }
+.house-rails > section h2 { font-size: 1.35rem; letter-spacing: -.025em; }
+.poster-frame { border-radius: .7rem; box-shadow: 0 .75rem 2rem rgb(0 0 0 / 22%); transition: transform .22s ease, box-shadow .22s ease; }
+.poster-frame:hover { box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 38%); transform: translateY(-4px) scale(1.015); }
+.drawer-panel { background: var(--color-cine-elevated); box-shadow: 1rem 0 4rem rgb(0 0 0 / 35%); }
+@media (max-width: 760px) { .top-nav { width: calc(100% - 1rem); } .house-stage { margin-top: -2rem; padding-inline: .85rem; } .house-rails { gap: 1.75rem; } }
+
 @media (max-width: 760px) {
   .public-nav { grid-template-columns: 1fr auto; min-height: 65px; padding: 0 20px; }
   .public-nav nav { display: none; }
