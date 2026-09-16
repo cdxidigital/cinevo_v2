@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "./auth/middleware";
+import { assertPublicProviderUrl } from "./provider-url";
 import {
   parsePlexMetadata,
   parsePlexResources,
@@ -130,7 +131,10 @@ export const plexOpenServer = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const token = data.server.accessToken || data.token;
-    const ranked = rankConnections(data.server.connections);
+    const ranked = [];
+    for (const connection of rankConnections(data.server.connections)) {
+      try { ranked.push({ ...connection, uri: await assertPublicProviderUrl(connection.uri) }); } catch { /* skip unsafe provider targets */ }
+    }
     if (!ranked.length) return { ok: false as const, error: "That server has no reachable connections." };
     let last = "Could not reach that Plex server from here.";
     for (const conn of ranked) {
@@ -162,6 +166,7 @@ export const plexImportSections = createServerFn({ method: "POST" })
     return { clientId: requireText(input?.clientId, "client id", 160), token: requireText(input?.token, "token", 512), uri: safeBaseUrl(input?.uri), sourceLabel: requireText(input?.sourceLabel, "source label", 120), sectionKeys };
   })
   .handler(async ({ data }) => {
+    const uri = await assertPublicProviderUrl(data.uri);
     const headers = { ...plexHeaders(data.clientId, data.token), "X-Plex-Token": data.token };
     const titles: ReturnType<typeof parsePlexMetadata> = [];
     try {

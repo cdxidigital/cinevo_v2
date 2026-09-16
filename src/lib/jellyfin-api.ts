@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "./auth/middleware";
+import { assertPublicProviderUrl } from "./provider-url";
 
 function requireText(value: unknown, field: string, max = 512): string {
   if (typeof value !== "string") throw new Error(`Invalid ${field}`);
@@ -60,7 +61,7 @@ export const jellyfinConnect = createServerFn({ method: "POST" })
     baseUrl: normalizeBase(input?.baseUrl), username: requireText(input?.username, "username", 160), password: requireText(input?.password, "password", 512), clientId: requireText(input?.clientId, "client id", 160),
   }))
   .handler(async ({ data }) => {
-    const baseUrl = normalizeBase(data.baseUrl);
+    const baseUrl = await assertPublicProviderUrl(normalizeBase(data.baseUrl));
     const deviceId = data.clientId.trim() || "cinevo-web";
     try {
       const body = await jfFetch(
@@ -96,7 +97,7 @@ export const jellyfinListSections = createServerFn({ method: "POST" })
     baseUrl: normalizeBase(input?.baseUrl), token: requireText(input?.token, "token", 512), userId: requireText(input?.userId, "user id", 160), clientId: requireText(input?.clientId, "client id", 160),
   }))
   .handler(async ({ data }) => {
-    const baseUrl = normalizeBase(data.baseUrl);
+    const baseUrl = await assertPublicProviderUrl(normalizeBase(data.baseUrl));
     try {
       const body = await jfFetch(
         `${baseUrl}/Users/${encodeURIComponent(data.userId)}/Views`,
@@ -131,7 +132,7 @@ export const jellyfinImportSections = createServerFn({ method: "POST" })
     return { baseUrl: normalizeBase(input?.baseUrl), token: requireText(input?.token, "token", 512), userId: requireText(input?.userId, "user id", 160), clientId: requireText(input?.clientId, "client id", 160), sourceLabel: requireText(input?.sourceLabel, "source label", 120), sectionKeys };
   })
   .handler(async ({ data }) => {
-    const baseUrl = normalizeBase(data.baseUrl);
+    const baseUrl = await assertPublicProviderUrl(normalizeBase(data.baseUrl));
     const headers = { "X-Emby-Authorization": authHeader(data.clientId, data.token) };
     const titles: {
       id: string;

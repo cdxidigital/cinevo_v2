@@ -81,18 +81,20 @@ export const acceptLibraryInvite = createServerFn({ method: "POST" })
     const user = await getSessionUser();
     if (!user?.email) throw new Error("Could not verify your email. Please sign in again.");
     if (user.email.toLowerCase() !== invite.email.toLowerCase()) throw new Error("This invite is for a different email address");
-    const claimed = await sql.query<{ libraryId: string; role: string }>("update cinevo_library_invites set \"acceptedAt\" = now() where token = $1 and \"expiresAt\" > now() and \"acceptedAt\" is null returning \"libraryId\", role", [token]);
-    const claim = claimed[0];
-    if (!claim) throw new Error("This invite is expired or already used");
-    await sql.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, $4) on conflict (\"libraryId\", \"userId\") do update set role = excluded.role", [id("member"), claim.libraryId, context.userId, claim.role]);
-    return { libraryId: claim.libraryId };
+    return sql.transaction(async (tx) => {
+      const claimed = await tx.query<{ libraryId: string; role: string }>("update cinevo_library_invites set \"acceptedAt\" = now() where token = $1 and \"expiresAt\" > now() and \"acceptedAt\" is null returning \"libraryId\", role", [token]);
+      const claim = claimed[0];
+      if (!claim) throw new Error("This invite is expired or already used");
+      await tx.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, $4) on conflict (\"libraryId\", \"userId\") do update set role = excluded.role", [id("member"), claim.libraryId, context.userId, claim.role]);
+      return { libraryId: claim.libraryId };
+    });
   });
 
 export const savePlaybackProgress = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator((input: { titleId: string; progress: number }) => {
+  .validator((input: { titleId: string; progress: number; libraryId?: string }) => {
     if (!input || typeof input !== "object") throw new Error("Invalid progress input");
-    return { titleId: requireString(input.titleId, "Title", 260), progress: Number(input.progress) };
+    return { titleId: requireString(input.titleId, "Title", 260), progress: Number(input.progress), libraryId: typeof input.libraryId === "string" ? requireString(input.libraryId, "Library", 160) : "" };
   })
   .handler(async ({ data, context }) => {
     if (typeof data.titleId !== "string" || !/^(plex|jf|jellyfin|node)-[A-Za-z0-9._:-]{1,240}$/.test(data.titleId)) {
@@ -105,13 +107,15 @@ export const savePlaybackProgress = createServerFn({ method: "POST" })
     const progress = data.progress;
     const sql = await getSql();
     const titlePrefix = data.titleId.slice(0, data.titleId.indexOf("-"));
+    let libraryId: string | null = data.libraryId || null;
     if (titlePrefix !== "node") {
+      if (!libraryId) throw new Error("A library is required for provider playback");
       const accessCheck = await sql.query<{ count: number }>(
-        `select count(*)::integer as count from cinevo_library_members where "userId" = $1`,
-        [context.userId],
+        `select count(*)::integer as count from cinevo_library_members where "userId" = $1 and "libraryId" = $2`,
+        [context.userId, libraryId],
       );
-      if (!accessCheck[0]?.count) throw new Error("Unauthorized: no library access");
+      if (!accessCheck[0]?.count) throw new Error("Unauthorized: no access to that library");
     }
-    await sql.query("insert into cinevo_playback_progress (id, \"userId\", \"titleId\", progress) values ($1, $2, $3, $4) on conflict (\"userId\", \"titleId\") do update set progress = excluded.progress, \"updatedAt\" = now()", [id("progress"), context.userId, data.titleId, progress]);
+    await sql.query("insert into cinevo_playback_progress (id, \"userId\", \"titleId\", \"libraryId\", progress) values ($1, $2, $3, $4, $5) on conflict (\"userId\", \"titleId\") do update set \"libraryId\" = excluded.\"libraryId\", progress = excluded.progress, \"updatedAt\" = now()", [id("progress"), context.userId, data.titleId, libraryId, progress]);
     return { ok: true };
   });

@@ -358,13 +358,13 @@ function mimeFor(filePath) {
   return MIME[path.extname(filePath).toLowerCase()] || "application/octet-stream";
 }
 
-function streamCors() {
+function streamCors(origin = "") {
   return {
-    "Access-Control-Allow-Origin": "*",
+    ...(origin ? { "Access-Control-Allow-Origin": origin, "Vary": "Origin" } : {}),
     "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
     "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
     "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
-    "Access-Control-Allow-Private-Network": "true",
+    ...(origin ? { "Access-Control-Allow-Private-Network": "true" } : {}),
     "Cache-Control": "no-store",
   };
 }
@@ -452,7 +452,7 @@ function streamLocalFile(req, res, filePath) {
   const stat = fs.statSync(filePath);
   const size = stat.size;
   const type = mimeFor(filePath);
-  const cors = streamCors();
+  const cors = streamCors(String(req.headers.origin || ""));
   if (req.method === "HEAD") {
     res.writeHead(200, { ...cors, "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
     res.end();
@@ -555,7 +555,7 @@ async function proxyUpstream(req, res, url, headers) {
     send(res, 502, { error: errText.slice(0, 200) || `Media server returned ${upstream.status}` });
     return;
   }
-  const out = streamCors();
+  const out = streamCors(String(req.headers.origin || ""));
   out["Content-Type"] = upstream.headers.get("content-type") || "video/mp4";
   out["Accept-Ranges"] = upstream.headers.get("accept-ranges") || "bytes";
   const length = upstream.headers.get("content-length");
