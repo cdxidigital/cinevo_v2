@@ -95,12 +95,12 @@ function Home() {
               <em>Your moment.</em>
             </h1>
             <p>
-              CINEVO brings the libraries you control into a considered cinematic space — built around your collection,
-              the people you trust, and choices you can always reverse.
+              CINEVO brings every library you control into one considered cinematic space. Create your free account once,
+              connect Plex or your friends&apos; servers once, and return to the same collection on every screen.
             </p>
             <div className="public-hero__actions">
               <Link to="/app" className="public-primary">
-                <Play size={15} fill="currentColor" /> Enter CINEVO
+                <Play size={15} fill="currentColor" /> Create your library
               </Link>
               <Link to="/app" className="public-secondary">
                 Open your library <ArrowDownRight size={16} />
@@ -109,10 +109,10 @@ function Home() {
           </div>
           <div className="public-hero__note">
             <ShieldCheck size={16} />
-            <span>
-              <b>Private from the first connection</b>
-              <small>Personal media remains on your computer or Plex server.</small>
-            </span>
+              <span>
+                <b>Connect once. Keep your place.</b>
+                <small>Your account remembers Plex, shared servers, libraries, and preferences.</small>
+              </span>
           </div>
         </section>
 
