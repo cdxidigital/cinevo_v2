@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Expand, Pause, Play, Subtitles, Volume2, VolumeX, X } from "lucide-react";
 import { titleById, useCinevo } from "@/lib/cinevo-store";
 import { mediaUrl } from "@/lib/library";
+import { nodeStreamUrl } from "@/lib/node-client";
 
 export function Player() {
   const playingId = useCinevo((s) => s.playingId);
@@ -14,11 +15,16 @@ export function Player() {
   const setProgress = useCinevo((s) => s.setProgress);
   const flash = useCinevo((s) => s.flash);
   const title = titleById(playingId);
+  const nodeUrl = useCinevo((s) => s.nodeUrl);
+  const nodeToken = useCinevo((s) => s.nodeToken);
   const videoRef = useRef<HTMLVideoElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
   const [chrome, setChrome] = useState(true);
-  const file = title ? mediaUrl(title.id) : undefined;
+  const localFile = title ? mediaUrl(title.id) : undefined;
+  const file = localFile ?? (title && nodeToken && (title.source === "plex" || title.source === "jellyfin")
+    ? nodeStreamUrl(nodeUrl, nodeToken, title.id, title.connectionId)
+    : undefined);
 
   useEffect(() => {
     const video = videoRef.current;
