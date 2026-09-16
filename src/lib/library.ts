@@ -187,6 +187,8 @@ export const THEMES = [
   { id: "nova", label: "Rebound", accent: "#3b7bff" },
   { id: "iris", label: "Paper", accent: "#ecece8" },
   { id: "ember", label: "Studio", accent: "#d6d0c4" },
+  { id: "graphite", label: "Graphite", accent: "#d9e2ec" },
+  { id: "aurora", label: "Aurora", accent: "#79f2c0" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];

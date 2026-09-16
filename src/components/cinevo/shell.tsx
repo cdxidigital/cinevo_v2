@@ -1,4 +1,4 @@
-import { Menu, Palette, Search, Settings2, Sparkles, X } from "lucide-react";
+import { Film, LibraryBig, Menu, Search, Settings2, Sparkles, Tv, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useCinevo, type Room } from "@/lib/cinevo-store";
@@ -7,9 +7,9 @@ import { Logo } from "./logo";
 
 const NAV: { id: Room; label: string; icon: typeof Sparkles }[] = [
   { id: "stage", label: "Home", icon: Sparkles },
-  { id: "movies", label: "Movies", icon: Palette },
-  { id: "shows", label: "Series", icon: Palette },
-  { id: "sidebar", label: "Library", icon: Palette },
+  { id: "movies", label: "Movies", icon: Film },
+  { id: "shows", label: "Series", icon: Tv },
+  { id: "sidebar", label: "My library", icon: LibraryBig },
 ];
 
 export function Shell({
