@@ -146,6 +146,9 @@ function authPopupPlugin(): Plugin {
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 export default defineConfig(({ command, isPreview }) => ({
+  // Clerk's publishable key is provisioned as NEXT_PUBLIC_* in Vercel.
+  // Keep that public-only prefix available to the browser alongside Vite's default.
+  envPrefix: ["VITE_", "NEXT_PUBLIC_"],
   server: {
     host: "0.0.0.0",
     port: 8080,

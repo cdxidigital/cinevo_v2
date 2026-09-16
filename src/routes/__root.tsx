@@ -40,7 +40,12 @@ export const Route = createRootRoute({
       </head>
       <body className="bg-cine-bg text-cine-text antialiased">
         <PreviewHostBridge />
-        <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+        <ClerkProvider
+          publishableKey={
+            import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ??
+            import.meta.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+          }
+        >
           <ClientOnly>
             <Rehydrate />
           </ClientOnly>
