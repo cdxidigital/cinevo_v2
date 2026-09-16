@@ -90,6 +90,27 @@
 }
 
 
+.public-nav__actions { display: flex; align-items: center; gap: .8rem; }
+.public-nav__login { color: var(--color-cine-faint); font-family: var(--font-ui); font-size: .75rem; font-weight: 700; }
+.public-nav__enter { display: inline-flex; align-items: center; gap: .45rem; border: 1px solid var(--color-cine-cyan); border-radius: .65rem; padding: .65rem .85rem; color: var(--color-cine-bg); background: var(--color-cine-cyan); font-family: var(--font-ui); font-size: .72rem; font-weight: 800; }
+.auth-page { position: relative; display: grid; min-height: 100svh; place-items: center; overflow: hidden; padding: clamp(1.25rem, 5vw, 4rem); background: var(--color-cine-bg); }
+.auth-backdrop { position: absolute; inset: 0; background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--color-cine-cyan) 14%, transparent), transparent 34rem), linear-gradient(135deg, transparent 35%, color-mix(in srgb, var(--color-cine-violet) 6%, transparent)); }
+.auth-card { position: relative; width: min(100%, 28rem); padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--color-cine-border); border-radius: 1.25rem; background: color-mix(in srgb, var(--color-cine-elevated) 92%, transparent); box-shadow: 0 2rem 6rem rgb(0 0 0 / .3); }
+.auth-card__brand { display: block; margin-bottom: 3.5rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: 1.15rem; font-weight: 800; letter-spacing: .18em; }
+.auth-card h1 { margin-top: .75rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; letter-spacing: -.045em; }
+.auth-card > p { margin-top: 1rem; color: var(--color-cine-faint); font-size: .86rem; line-height: 1.65; }
+.auth-form { display: grid; gap: 1rem; margin-top: 2rem; }
+.auth-form label > span { display: block; margin-bottom: .35rem; color: var(--color-cine-muted); font-family: var(--font-ui); font-size: .7rem; font-weight: 700; }
+.auth-field { display: flex; align-items: center; gap: .55rem; border: 1px solid var(--color-cine-border); border-radius: .65rem; padding: .75rem .8rem; color: var(--color-cine-cyan); background: var(--color-cine-well); }
+.auth-field:focus-within { border-color: var(--color-cine-cyan); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cine-cyan) 14%, transparent); }
+.auth-field input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--color-cine-text); background: transparent; font-size: .85rem; }
+.auth-submit { width: 100%; justify-content: center; border: 0; margin-top: .25rem; }
+.auth-submit:disabled { cursor: wait; opacity: .65; }
+.auth-error { color: #ff9d9d; font-size: .75rem; }
+.auth-switch { color: var(--color-cine-faint); font-size: .75rem; text-align: center; }
+.auth-switch a { color: var(--color-cine-cyan); font-weight: 700; }
+@media (max-width: 560px) { .public-nav__login { display: none; } .public-nav__enter { padding-inline: .7rem; } }
+
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {

@@ -105,7 +105,7 @@ function NodePairing() {
             </h1>
             <p className="mt-5 max-w-xl text-cine-muted">
               Pair this browser with the Node running on your Mac or Windows PC. It stays on loopback, uses a
-              ten-minute code, and never sends Plex or Jellyfin credentials to CINEVO.
+              ten-minute code. Plex credentials stay on this computer while playback is proxied locally.
             </p>
             <div className="mt-6 flex flex-wrap gap-3 text-sm text-cine-muted">
               <span className="inline-flex items-center gap-2">
@@ -115,7 +115,7 @@ function NodePairing() {
                 <KeyRound size={15} className="text-cine-cyan" /> 10-minute code
               </span>
               <span className="inline-flex items-center gap-2">
-                <Link2 size={15} className="text-cine-cyan" /> No media proxy
+                <Link2 size={15} className="text-cine-cyan" /> Plex proxy playback
               </span>
             </div>
           </div>

@@ -78,8 +78,11 @@ function Home() {
           )}
         </nav>
         <div className="public-nav__actions">
-          <Link to="/app" className="public-nav__enter">
-            Enter CINEVO <ArrowRight size={14} />
+          <Link to="/login" className="public-nav__login">
+            Log in
+          </Link>
+          <Link to="/signup" className="public-nav__enter">
+            Create account <ArrowRight size={14} />
           </Link>
         </div>
       </header>
