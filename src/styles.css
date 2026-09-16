@@ -156,6 +156,45 @@ html[data-theme="ember"] {
   --color-cine-cyan: #cb53a3;
 }
 
+/* CINEVO brand direction: charcoal surfaces, white type, electric-blue action color. */
+.public-home {
+  --color-cine-cyan: #2d8cff;
+  --color-cine-violet: #2d8cff;
+  --color-cine-bg: #0b0f14;
+  --color-cine-elevated: #111820;
+  --color-cine-surface: #151d26;
+  --color-cine-well: #0e141b;
+  --color-cine-text: #f7f9fc;
+  --color-cine-muted: #b2bdca;
+  --color-cine-faint: #8d9aaa;
+  --color-cine-border: rgb(255 255 255 / 13%);
+  --color-cine-line: rgb(255 255 255 / 16%);
+}
+.public-home .brand__mark { border-color: #2d8cff; }
+.public-home .brand__mark i { border-left-color: #2d8cff; }
+.public-home .brand b { letter-spacing: .2em; }
+.public-home .brand small { color: #aeb9c7; }
+.public-home .public-nav { background: rgb(11 15 20 / 88%); }
+.public-home .public-primary,
+.public-home .public-nav__enter { border-color: #2d8cff; color: #fff; background: #2d8cff; box-shadow: 0 .75rem 2rem rgb(45 140 255 / 22%); }
+.public-home .public-secondary { border-color: rgb(255 255 255 / 22%); color: #f7f9fc; background: rgb(255 255 255 / 6%); }
+.public-home .public-primary:hover,
+.public-home .public-nav__enter:hover { background: #4aa0ff; border-color: #4aa0ff; }
+.public-home .public-secondary:hover { border-color: #2d8cff; background: rgb(45 140 255 / 10%); }
+.public-home .public-kicker { color: #55a8ff; }
+.public-home .public-hero h1 em,
+.public-home .home-manifesto h2 em,
+.public-home .home-highlights h2 em,
+.public-home .home-closing h2 em { color: #55a8ff; }
+.public-home .public-hero__orb { background: radial-gradient(circle, rgb(45 140 255 / 26%), transparent 68%); }
+.public-home .platform-card,
+.public-home .home-highlight,
+.public-home .home-library-steps article,
+.public-home .android-build-card { box-shadow: 0 1rem 3rem rgb(0 0 0 / 18%); }
+.public-home .platform-card:hover,
+.public-home .home-highlight:hover,
+.public-home .home-library-steps article:hover { border-color: #2d8cff; box-shadow: 0 1rem 3rem rgb(45 140 255 / 12%); }
+
 @layer utilities {
   .glow-cyan {
     box-shadow: 0 0 0 1px var(--color-cine-cyan);
