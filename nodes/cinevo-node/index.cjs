@@ -104,11 +104,11 @@ function send(res, status, body, extra = {}) {
   const headers = {
     "Content-Type": typeof body === "string" ? "text/html; charset=utf-8" : "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": "*",
+    ...(res.__cinevoOrigin ? { "Access-Control-Allow-Origin": res.__cinevoOrigin, "Vary": "Origin" } : {}),
     "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
     "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
     "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
-    "Access-Control-Allow-Private-Network": "true",
+    ...(res.__cinevoOrigin ? { "Access-Control-Allow-Private-Network": "true" } : {}),
     ...extra,
   };
   res.writeHead(status, headers);
@@ -145,6 +145,32 @@ function bearer(req) {
   const h = req.headers.authorization || "";
   const m = /^Bearer\s+(.+)$/i.exec(h);
   return m ? m[1].trim() : "";
+}
+
+function mediaBaseUrl(value) {
+  const raw = String(value || "").trim().replace(/\/$/, "");
+  if (!raw || raw.includes("\\0")) return null;
+  try {
+    const url = new URL(raw);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
+function isAllowedDashboardRequest(req) {
+  const origin = String(req.headers.origin || "");
+  if (!origin) return true;
+  const configured = String(process.env.CINEVO_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return [
+    `http://${HOST}:${PORT}`,
+    `http://localhost:${PORT}`,
+    ...configured,
+  ].includes(origin);
 }
 
 function requireSession(req, res) {
@@ -332,13 +358,13 @@ function mimeFor(filePath) {
   return MIME[path.extname(filePath).toLowerCase()] || "application/octet-stream";
 }
 
-function streamCors() {
+function streamCors(origin = "") {
   return {
-    "Access-Control-Allow-Origin": "*",
+    ...(origin ? { "Access-Control-Allow-Origin": origin, "Vary": "Origin" } : {}),
     "Access-Control-Allow-Headers": "Authorization, Content-Type, Range",
     "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
     "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range, Content-Type",
-    "Access-Control-Allow-Private-Network": "true",
+    ...(origin ? { "Access-Control-Allow-Private-Network": "true" } : {}),
     "Cache-Control": "no-store",
   };
 }
@@ -367,8 +393,8 @@ function parseRange(header, size) {
   return { start, end: Math.min(end, size - 1) };
 }
 
-function sessionFrom(req, url) {
-  const token = bearer(req) || String(url.searchParams.get("token") || "");
+function sessionFrom(req) {
+  const token = bearer(req);
   const session = token ? state.sessions.get(token) : null;
   if (!session || session.expires < Date.now()) return null;
   return session;
@@ -426,7 +452,7 @@ function streamLocalFile(req, res, filePath) {
   const stat = fs.statSync(filePath);
   const size = stat.size;
   const type = mimeFor(filePath);
-  const cors = streamCors();
+  const cors = streamCors(String(req.headers.origin || ""));
   if (req.method === "HEAD") {
     res.writeHead(200, { ...cors, "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
     res.end();
@@ -473,7 +499,6 @@ async function plexPlayUrl(conn, ratingKey) {
   if (key && friendly) {
     const href = key.startsWith("http") ? key : `${conn.baseUrl}${key}`;
     const target = new URL(href);
-    target.searchParams.set("X-Plex-Token", conn.token);
     return { url: target.toString(), headers: { "X-Plex-Token": conn.token } };
   }
   const session = crypto.randomBytes(8).toString("hex");
@@ -494,7 +519,6 @@ async function plexPlayUrl(conn, ratingKey) {
     "X-Plex-Client-Identifier": "cinevo-node",
     "X-Plex-Product": "CINEVO",
     "X-Plex-Device": "Node",
-    "X-Plex-Token": conn.token,
   });
   return {
     url: `${conn.baseUrl}/video/:/transcode/universal/start.mp4?${params}`,
@@ -531,7 +555,7 @@ async function proxyUpstream(req, res, url, headers) {
     send(res, 502, { error: errText.slice(0, 200) || `Media server returned ${upstream.status}` });
     return;
   }
-  const out = streamCors();
+  const out = streamCors(String(req.headers.origin || ""));
   out["Content-Type"] = upstream.headers.get("content-type") || "video/mp4";
   out["Accept-Ranges"] = upstream.headers.get("accept-ranges") || "bytes";
   const length = upstream.headers.get("content-length");
@@ -682,6 +706,12 @@ async function importSections(conn, keys) {
 
 async function handle(req, res) {
   const url = new URL(req.url || "/", `http://${HOST}:${PORT}`);
+  const origin = String(req.headers.origin || "");
+  if (origin && !isAllowedDashboardRequest(req)) {
+    send(res, 403, { error: "Origin is not allowed" });
+    return;
+  }
+  res.__cinevoOrigin = origin || `http://${HOST}:${PORT}`;
   if (req.method === "OPTIONS") {
     send(res, 204, "");
     return;
@@ -708,7 +738,7 @@ async function handle(req, res) {
     res.writeHead(200, {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=86400",
-      "Access-Control-Allow-Origin": "*",
+      ...(res.__cinevoOrigin ? { "Access-Control-Allow-Origin": res.__cinevoOrigin, "Vary": "Origin" } : {}),
     });
     res.end(png);
     return;
@@ -754,7 +784,7 @@ async function handle(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/v1/connections") {
-    const localDash = req.headers["x-cinevo-local"] === "dashboard";
+    const localDash = req.headers["x-cinevo-local"] === "dashboard" && isAllowedDashboardRequest(req);
     if (!localDash && !requireSession(req, res)) return;
     let body;
     try {
@@ -769,19 +799,20 @@ async function handle(req, res) {
       return;
     }
     const now = new Date().toISOString();
+    const baseUrl = provider === "preview" ? "local://preview" : mediaBaseUrl(body.baseUrl);
+    if (provider !== "preview" && !baseUrl) {
+      send(res, 400, { error: "Use a valid HTTP or HTTPS media server address" });
+      return;
+    }
     const conn = {
       id: `conn-${crypto.randomBytes(4).toString("hex")}`,
       provider,
-      baseUrl: String(body.baseUrl || (provider === "preview" ? "local://preview" : "")).replace(/\/$/, ""),
+      baseUrl: baseUrl || "local://preview",
       token: String(body.token || body.password || ""),
       username: String(body.username || ""),
       createdAt: now,
       updatedAt: now,
     };
-    if (provider !== "preview" && !conn.baseUrl) {
-      send(res, 400, { error: "A local server address is required" });
-      return;
-    }
     state.config.connections.push(conn);
     saveConfig(state.config);
     send(res, 200, { id: conn.id, provider: conn.provider, baseUrl: conn.baseUrl });
@@ -925,7 +956,7 @@ async function handle(req, res) {
   }
 
   if ((req.method === "GET" || req.method === "HEAD") && url.pathname === "/v1/stream") {
-    if (!sessionFrom(req, url)) {
+    if (!sessionFrom(req)) {
       send(res, 401, { error: "The local pairing session expired" });
       return;
     }

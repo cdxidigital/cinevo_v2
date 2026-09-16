@@ -100,6 +100,13 @@
 .auth-card h1 { margin-top: .75rem; color: var(--color-cine-text); font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; letter-spacing: -.045em; }
 .auth-card > p { margin-top: 1rem; color: var(--color-cine-faint); font-size: .86rem; line-height: 1.65; }
 .auth-form { display: grid; gap: 1rem; margin-top: 2rem; }
+.auth-socials { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.auth-social { min-height: 2.75rem; border: 1px solid var(--color-cine-border); border-radius: .65rem; color: var(--color-cine-text); background: var(--color-cine-well); font-family: var(--font-ui); font-size: .75rem; font-weight: 700; transition: border-color .2s ease, background .2s ease; }
+.auth-social:hover:not(:disabled) { border-color: var(--color-cine-cyan); background: color-mix(in srgb, var(--color-cine-cyan) 10%, var(--color-cine-well)); }
+.auth-social:disabled { cursor: wait; opacity: .6; }
+.auth-divider { display: flex; align-items: center; gap: .75rem; color: var(--color-cine-faint); font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; }
+.auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--color-cine-border); }
+@media (max-width: 420px) { .auth-socials { grid-template-columns: 1fr; } }
 .auth-form label > span { display: block; margin-bottom: .35rem; color: var(--color-cine-muted); font-family: var(--font-ui); font-size: .7rem; font-weight: 700; }
 .auth-field { display: flex; align-items: center; gap: .55rem; border: 1px solid var(--color-cine-border); border-radius: .65rem; padding: .75rem .8rem; color: var(--color-cine-cyan); background: var(--color-cine-well); }
 .auth-field:focus-within { border-color: var(--color-cine-cyan); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cine-cyan) 14%, transparent); }
@@ -109,7 +116,76 @@
 .auth-error { color: #ff9d9d; font-size: .75rem; }
 .auth-switch { color: var(--color-cine-faint); font-size: .75rem; text-align: center; }
 .auth-switch a { color: var(--color-cine-cyan); font-weight: 700; }
-@media (max-width: 560px) { .public-nav__login { display: none; } .public-nav__enter { padding-inline: .7rem; } }
+@media (max-width: 560px) {
+  .public-nav__login { display: none; }
+  .public-nav__enter { padding-inline: .7rem; }
+}
+
+/* Clear, familiar controls on small screens: keep the brand, primary action, and content rhythm visible. */
+.public-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.public-nav nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(.8rem, 2vw, 1.5rem);
+  margin-inline: auto;
+  color: var(--color-cine-muted);
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  font-weight: 650;
+}
+.public-nav nav a:hover { color: var(--color-cine-text); }
+.public-nav__actions { flex-shrink: 0; }
+.public-hero__actions { flex-wrap: wrap; }
+.home-reel > header,
+.home-highlights > header {
+  display: grid;
+  gap: .7rem;
+}
+.home-reel > header p,
+.home-highlights > header p { max-width: 34rem; color: var(--color-cine-muted); line-height: 1.65; }
+.platform-card,
+.home-highlight,
+.home-library-steps article {
+  min-width: 0;
+  border-radius: .85rem;
+}
+.platform-card h3,
+.home-highlight h3,
+.home-library-steps article h3 { line-height: 1.15; }
+.platform-card p,
+.home-highlight p,
+.home-library-steps article p { line-height: 1.6; }
+
+@media (max-width: 760px) {
+  .public-nav {
+    min-height: 4rem;
+    padding-block: .7rem;
+  }
+  .public-nav nav { display: none; }
+  .public-nav__actions { margin-left: auto; }
+  .public-hero { min-height: auto; padding-top: 6.5rem; padding-bottom: 4rem; }
+  .public-hero h1 { font-size: clamp(3.1rem, 16vw, 5.2rem); }
+  .public-hero p { font-size: .95rem; line-height: 1.65; }
+  .public-hero__actions { display: grid; grid-template-columns: 1fr; }
+  .public-hero__actions > * { justify-content: center; width: 100%; }
+  .home-reel,
+  .home-manifesto,
+  .home-highlights,
+  .home-platforms,
+  .home-closing,
+  .home-downloads { padding-block: 4rem; }
+  .home-manifesto,
+  .home-closing { display: grid; gap: 2rem; }
+  .home-platforms h2,
+  .home-downloads h2 { font-size: clamp(2rem, 10vw, 3rem); line-height: 1.05; }
+  .platform-downloads { grid-template-columns: 1fr; }
+  .android-build-card { gap: 1.25rem; }
+  .public-footer { display: grid; gap: 1rem; padding-block: 2rem; }
+}
 
 @layer base {
   button:not(:disabled),
@@ -155,6 +231,45 @@ html[data-theme="ember"] {
   --color-cine-surface: #24151c;
   --color-cine-cyan: #cb53a3;
 }
+
+/* CINEVO brand direction: charcoal surfaces, white type, electric-blue action color. */
+.public-home {
+  --color-cine-cyan: #2d8cff;
+  --color-cine-violet: #2d8cff;
+  --color-cine-bg: #0b0f14;
+  --color-cine-elevated: #111820;
+  --color-cine-surface: #151d26;
+  --color-cine-well: #0e141b;
+  --color-cine-text: #f7f9fc;
+  --color-cine-muted: #b2bdca;
+  --color-cine-faint: #8d9aaa;
+  --color-cine-border: rgb(255 255 255 / 13%);
+  --color-cine-line: rgb(255 255 255 / 16%);
+}
+.public-home .brand__mark { border-color: #2d8cff; }
+.public-home .brand__mark i { border-left-color: #2d8cff; }
+.public-home .brand b { letter-spacing: .2em; }
+.public-home .brand small { color: #aeb9c7; }
+.public-home .public-nav { background: rgb(11 15 20 / 88%); }
+.public-home .public-primary,
+.public-home .public-nav__enter { border-color: #2d8cff; color: #fff; background: #2d8cff; box-shadow: 0 .75rem 2rem rgb(45 140 255 / 22%); }
+.public-home .public-secondary { border-color: rgb(255 255 255 / 22%); color: #f7f9fc; background: rgb(255 255 255 / 6%); }
+.public-home .public-primary:hover,
+.public-home .public-nav__enter:hover { background: #4aa0ff; border-color: #4aa0ff; }
+.public-home .public-secondary:hover { border-color: #2d8cff; background: rgb(45 140 255 / 10%); }
+.public-home .public-kicker { color: #55a8ff; }
+.public-home .public-hero h1 em,
+.public-home .home-manifesto h2 em,
+.public-home .home-highlights h2 em,
+.public-home .home-closing h2 em { color: #55a8ff; }
+.public-home .public-hero__orb { background: radial-gradient(circle, rgb(45 140 255 / 26%), transparent 68%); }
+.public-home .platform-card,
+.public-home .home-highlight,
+.public-home .home-library-steps article,
+.public-home .android-build-card { box-shadow: 0 1rem 3rem rgb(0 0 0 / 18%); }
+.public-home .platform-card:hover,
+.public-home .home-highlight:hover,
+.public-home .home-library-steps article:hover { border-color: #2d8cff; box-shadow: 0 1rem 3rem rgb(45 140 255 / 12%); }
 
 @layer utilities {
   .glow-cyan {
@@ -1657,6 +1772,65 @@ html[data-theme="iris"] .house-ambient {
 .poster-frame:hover img,
 .poster-frame:focus-within img {
   filter: saturate(0.85) contrast(1.04) brightness(1);
+}
+
+/* Shared page rhythm keeps utility routes familiar with the main CINEVO shell. */
+.cinevo-page {
+  --color-cine-bg: #0b0f14;
+  --color-cine-elevated: #111820;
+  --color-cine-surface: #151d26;
+  --color-cine-well: #0e141b;
+  --color-cine-text: #f7f9fc;
+  --color-cine-muted: #b2bdca;
+  --color-cine-faint: #8d9aaa;
+  --color-cine-border: rgb(255 255 255 / 13%);
+  --color-cine-line: rgb(255 255 255 / 16%);
+  --color-cine-cyan: #2d8cff;
+  --color-cine-violet: #2d8cff;
+  min-height: 100svh;
+  color: var(--color-cine-text);
+  background:
+    radial-gradient(circle at 75% 0%, color-mix(in srgb, var(--color-cine-cyan) 8%, transparent), transparent 30rem),
+    var(--color-cine-bg);
+}
+.cinevo-page > nav {
+  min-height: 4.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-cine-border) 78%, transparent);
+  background: color-mix(in srgb, var(--color-cine-bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+}
+.cinevo-node-page > main {
+  padding-top: clamp(3rem, 8vw, 6rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+.cinevo-node-page h1,
+.cinevo-node-page h2,
+.cinevo-node-page h3 {
+  color: var(--color-cine-text);
+  text-wrap: balance;
+}
+.cinevo-node-page p {
+  line-height: 1.65;
+}
+.cinevo-node-page aside,
+.cinevo-node-page article {
+  border-color: var(--color-cine-border);
+  background: color-mix(in srgb, var(--color-cine-elevated) 92%, transparent);
+}
+.cinevo-node-page input:focus-visible,
+.cinevo-node-page button:focus-visible,
+.cinevo-node-page a:focus-visible {
+  outline: 2px solid var(--color-cine-cyan);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .cinevo-page > nav {
+    min-height: 4rem;
+    padding-block: .7rem;
+  }
+  .cinevo-node-page > main {
+    padding-top: 2rem;
+  }
 }
 
 /* ── v5 public landing ── */

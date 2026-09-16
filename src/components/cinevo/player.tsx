@@ -22,6 +22,14 @@ export function Player() {
   const [muted, setMuted] = useState(true);
   const [chrome, setChrome] = useState(true);
   const localFile = title ? mediaUrl(title.id) : undefined;
+
+  const getStreamUrl = () => {
+    if (localFile || !title || !nodeToken) return undefined;
+    if (title.source !== "plex" && title.source !== "jellyfin") return undefined;
+    const streamData = nodeStreamUrl(nodeUrl, nodeToken, title.id, title.connectionId);
+    return streamData.url;
+  };
+
   const streamUrl = getStreamUrl();
 
   useEffect(() => {
@@ -77,14 +85,6 @@ export function Player() {
     };
   }, [playing, localFile, streamUrl]);
 
-  const getStreamUrl = () => {
-    if (!localFile) return localFile;
-    if (!title || !nodeToken) return undefined;
-    if (title.source !== "plex" && title.source !== "jellyfin") return undefined;
-    const streamData = nodeStreamUrl(nodeUrl, nodeToken, title.id, title.connectionId);
-    return streamData.url;
-  };
-
   const seek = (value: number) => {
     if (!title) return;
     setProgress(title.id, value);
@@ -132,12 +132,12 @@ export function Player() {
     return () => window.removeEventListener("keydown", onKey);
     // onToggle closes over current video/progress
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, file, progress, playing]);
+  }, [title, localFile, progress, playing]);
 
   if (!title) return null;
 
   const missing =
-    !file &&
+    !localFile &&
     (title.source === "folder"
       ? "Re-select this folder to play. CINEVO does not store the file."
       : title.source === "plex" || title.source === "jellyfin"
@@ -151,12 +151,12 @@ export function Player() {
       role="dialog"
       aria-modal="true"
       aria-label={`${title.title} player`}
-      onClick={() => file && onToggle()}
+      onClick={() => localFile && onToggle()}
     >
-      {file ? (
+      {localFile ? (
         <video
           ref={videoRef}
-          src={file}
+          src={localFile}
           className="absolute inset-0 h-full w-full bg-cine-bg object-contain"
           playsInline
           autoPlay
@@ -203,17 +203,17 @@ export function Player() {
       </button>
       <div
         className={`pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 transition-opacity ${
-          file && playing && !chrome ? "opacity-0" : "opacity-100"
+          localFile && playing && !chrome ? "opacity-0" : "opacity-100"
         }`}
       >
-        {file ? (
+        {localFile ? (
           <span className="flex size-16 items-center justify-center rounded-full bg-cine-text text-cine-bg">
             {playing ? <Pause size={26} fill="currentColor" /> : <Play size={26} fill="currentColor" />}
           </span>
         ) : (
           <p className="max-w-md text-center font-ui text-sm text-cine-muted">{missing}</p>
         )}
-        {file && muted && playing ? (
+        {localFile && muted && playing ? (
           <p className="font-ui text-xs uppercase tracking-[0.22em] text-cine-muted">Sound off · unmute in the bar</p>
         ) : null}
       </div>
@@ -224,9 +224,9 @@ export function Player() {
         onClick={(e) => e.stopPropagation()}
       >
         <p className="font-ui text-xs tracking-widest text-cine-muted">
-          {progress >= 100 ? "Finished · Play again from the start" : file ? "Esc closes · Space pauses" : "Esc closes"}
+          {progress >= 100 ? "Finished · Play again from the start" : localFile ? "Esc closes · Space pauses" : "Esc closes"}
         </p>
-        {file ? (
+        {localFile ? (
           <div className="flex items-center gap-3 font-mono text-xs text-cine-muted">
             <span className="w-10 tabular-nums">{Math.round(progress)}%</span>
             <input
@@ -243,7 +243,7 @@ export function Player() {
         ) : null}
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            {file ? (
+            {localFile ? (
               <button
                 type="button"
                 onClick={onToggle}
@@ -256,7 +256,7 @@ export function Player() {
             <strong className="truncate font-ui text-lg tracking-wide">{title.title}</strong>
           </div>
           <div className="flex items-center text-cine-muted">
-            {file ? (
+            {localFile ? (
               <>
                 <button
                   type="button"

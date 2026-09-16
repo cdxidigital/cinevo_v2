@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "./auth/middleware";
+import { assertPublicProviderUrl } from "./provider-url";
 import {
   parsePlexMetadata,
   parsePlexResources,
@@ -20,6 +22,22 @@ function plexHeaders(clientId: string, token?: string) {
   };
 }
 
+function requireText(value: unknown, field: string, max = 512): string {
+  if (typeof value !== "string") throw new Error(`Invalid ${field}`);
+  const result = value.trim();
+  if (!result || result.length > max) throw new Error(`Invalid ${field}`);
+  return result;
+}
+
+function safeBaseUrl(value: unknown): string {
+  const raw = requireText(value, "server URL");
+  const url = new URL(raw);
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error("Invalid server URL");
+  return url.toString().replace(/\/$/, "");
+}
+
+function genericProviderError(fallback: string): string { return fallback; }
+
 async function plexJson(url: string, headers: Record<string, string>, ms = 8000, init: RequestInit = {}): Promise<unknown> {
   const res = await fetch(url, {
     ...init,
@@ -35,7 +53,8 @@ async function plexJson(url: string, headers: Record<string, string>, ms = 8000,
 }
 
 export const plexStartPin = createServerFn({ method: "POST" })
-  .validator((input: { clientId: string }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { clientId: string }) => ({ clientId: requireText(input?.clientId, "client id", 160) }))
   .handler(async ({ data }) => {
     const clientId = data.clientId.trim();
     if (!clientId) return { ok: false as const, error: "Missing Plex client id." };
@@ -51,12 +70,17 @@ export const plexStartPin = createServerFn({ method: "POST" })
       if (!id || !code) return { ok: false as const, error: "Plex did not issue a sign-in pin." };
       return { ok: true as const, id, code };
     } catch (err) {
-      return { ok: false as const, error: err instanceof Error ? err.message : "Could not start Plex sign-in." };
+      return { ok: false as const, error: genericProviderError("Could not start Plex sign-in.") };
     }
   });
 
 export const plexPollPin = createServerFn({ method: "POST" })
-  .validator((input: { clientId: string; pinId: number }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { clientId: string; pinId: number }) => {
+    const pinId = Number(input?.pinId);
+    if (!Number.isInteger(pinId) || pinId < 1) throw new Error("Invalid Plex pin");
+    return { clientId: requireText(input?.clientId, "client id", 160), pinId };
+  })
   .handler(async ({ data }) => {
     try {
       const body = (await plexJson(
@@ -67,12 +91,16 @@ export const plexPollPin = createServerFn({ method: "POST" })
       const token = typeof body.authToken === "string" ? body.authToken : "";
       return { ok: true as const, token: token || null };
     } catch (err) {
-      return { ok: false as const, error: err instanceof Error ? err.message : "Plex sign-in timed out." };
+      return { ok: false as const, error: genericProviderError("Plex sign-in timed out.") };
     }
   });
 
 export const plexListServers = createServerFn({ method: "POST" })
-  .validator((input: { clientId: string; token: string }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { clientId: string; token: string }) => ({
+    clientId: requireText(input?.clientId, "client id", 160),
+    token: requireText(input?.token, "token", 512),
+  }))
   .handler(async ({ data }) => {
     const headers = plexHeaders(data.clientId, data.token);
     try {
@@ -88,15 +116,25 @@ export const plexListServers = createServerFn({ method: "POST" })
         servers,
       };
     } catch (err) {
-      return { ok: false as const, error: err instanceof Error ? err.message : "Could not list Plex servers." };
+      return { ok: false as const, error: genericProviderError("Could not list Plex servers.") };
     }
   });
 
 export const plexOpenServer = createServerFn({ method: "POST" })
-  .validator((input: { clientId: string; token: string; server: PlexServer }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { clientId: string; token: string; server: PlexServer }) => {
+    const clientId = requireText(input?.clientId, "client id", 160);
+    const token = requireText(input?.token, "token", 512);
+    if (!input?.server || !Array.isArray(input.server.connections)) throw new Error("Invalid Plex server");
+    const server = { ...input.server, connections: input.server.connections.slice(0, 12).map((connection) => ({ ...connection, uri: safeBaseUrl(connection.uri) })) };
+    return { clientId, token, server };
+  })
   .handler(async ({ data }) => {
     const token = data.server.accessToken || data.token;
-    const ranked = rankConnections(data.server.connections);
+    const ranked = [];
+    for (const connection of rankConnections(data.server.connections)) {
+      try { ranked.push({ ...connection, uri: await assertPublicProviderUrl(connection.uri) }); } catch { /* skip unsafe provider targets */ }
+    }
     if (!ranked.length) return { ok: false as const, error: "That server has no reachable connections." };
     let last = "Could not reach that Plex server from here.";
     for (const conn of ranked) {
@@ -114,15 +152,21 @@ export const plexOpenServer = createServerFn({ method: "POST" })
           sections,
         };
       } catch (err) {
-        last = err instanceof Error ? err.message : last;
+        last = genericProviderError("Could not reach that Plex server from here.");
       }
     }
     return { ok: false as const, error: last };
   });
 
 export const plexImportSections = createServerFn({ method: "POST" })
-  .validator((input: { clientId: string; token: string; uri: string; sourceLabel: string; sectionKeys: string[] }) => input)
+  .middleware([authMiddleware])
+  .validator((input: { clientId: string; token: string; uri: string; sourceLabel: string; sectionKeys: string[] }) => {
+    const sectionKeys = Array.isArray(input?.sectionKeys) ? input.sectionKeys.slice(0, 12).map((key) => requireText(key, "section", 120)) : [];
+    if (!sectionKeys.length) throw new Error("Select at least one library");
+    return { clientId: requireText(input?.clientId, "client id", 160), token: requireText(input?.token, "token", 512), uri: safeBaseUrl(input?.uri), sourceLabel: requireText(input?.sourceLabel, "source label", 120), sectionKeys };
+  })
   .handler(async ({ data }) => {
+    const uri = await assertPublicProviderUrl(data.uri);
     const headers = { ...plexHeaders(data.clientId, data.token), "X-Plex-Token": data.token };
     const titles: ReturnType<typeof parsePlexMetadata> = [];
     try {
@@ -138,6 +182,6 @@ export const plexImportSections = createServerFn({ method: "POST" })
       const unique = titles.filter((t) => (seen.has(t.id) ? false : (seen.add(t.id), true)));
       return { ok: true as const, titles: unique };
     } catch (err) {
-      return { ok: false as const, error: err instanceof Error ? err.message : "Could not import that Plex library." };
+      return { ok: false as const, error: genericProviderError("Could not import that Plex library.") };
     }
   });
