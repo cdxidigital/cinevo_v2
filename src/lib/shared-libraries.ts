@@ -109,7 +109,7 @@ export const savePlaybackProgress = createServerFn({ method: "POST" })
     const progress = data.progress;
     const sql = await getSql();
     const titlePrefix = data.titleId.slice(0, data.titleId.indexOf("-"));
-    let libraryId: string | null = data.libraryId || null;
+    const libraryId: string | null = data.libraryId || null;
     if (titlePrefix !== "node") {
       if (!libraryId) throw new Error("A library is required for provider playback");
       const accessCheck = await sql.query<{ count: number }>(
