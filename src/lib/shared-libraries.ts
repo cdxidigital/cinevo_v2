@@ -44,8 +44,10 @@ export const createSharedLibrary = createServerFn({ method: "POST" })
     const description = sanitizeText(typeof data.description === "string" ? data.description : "", 240);
     const libraryId = id("lib");
     const sql = await getSql();
-    await sql.query("insert into cinevo_libraries (id, \"ownerId\", name, description) values ($1, $2, $3, $4)", [libraryId, context.userId, name, description]);
-    await sql.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, 'owner')", [id("member"), libraryId, context.userId]);
+    await sql.transaction(async (tx) => {
+      await tx.query("insert into cinevo_libraries (id, \"ownerId\", name, description) values ($1, $2, $3, $4)", [libraryId, context.userId, name, description]);
+      await tx.query("insert into cinevo_library_members (id, \"libraryId\", \"userId\", role) values ($1, $2, $3, 'owner')", [id("member"), libraryId, context.userId]);
+    });
     return { id: libraryId };
   });
 
