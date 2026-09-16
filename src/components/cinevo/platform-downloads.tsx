@@ -1,22 +1,22 @@
 import { ArrowRight, Monitor, Tv, Smartphone } from "lucide-react";
 
 const PLATFORMS = [
-  { icon: Smartphone, label: "Android phone", detail: "Touch-first CINEVO app", action: "Build phone APK", href: "#android-build" },
-  { icon: Tv, label: "Android TV", detail: "Landscape and D-pad ready", action: "Build TV APK", href: "#android-build" },
-  { icon: Monitor, label: "Web app", detail: "Works in any modern browser", action: "Open CINEVO", href: "/app" },
+  { icon: Smartphone, label: "Android phone", detail: "Touch-first CINEVO app", action: "Download APK", href: "/downloads/cinevo-android.apk", download: true },
+  { icon: Tv, label: "Android TV", detail: "Landscape and D-pad ready", action: "Download TV APK", href: "/downloads/cinevo-android-tv.apk", download: true },
+  { icon: Monitor, label: "Web app", detail: "Works in any modern browser", action: "Open CINEVO", href: "/app", download: false },
 ];
 
 export function PlatformDownloads() {
   return (
     <div className="platform-downloads" aria-label="CINEVO platforms">
-      {PLATFORMS.map(({ icon: Icon, label, detail, action, href }) => (
+      {PLATFORMS.map(({ icon: Icon, label, detail, action, href, download }) => (
         <article key={label} className="platform-card">
           <Icon size={20} aria-hidden="true" />
           <div>
             <h3>{label}</h3>
             <p>{detail}</p>
           </div>
-          <a href={href}>{action} <ArrowRight size={14} /></a>
+          <a href={href} download={download || undefined}>{action} <ArrowRight size={14} /></a>
         </article>
       ))}
     </div>
