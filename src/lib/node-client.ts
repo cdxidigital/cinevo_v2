@@ -160,9 +160,10 @@ export function canProxyPlay(title: { id: string; source?: string; path?: string
 export function nodeStreamUrl(base: string, token: string, id: string, connectionId?: string) {
   const url = new URL(`${normalizeNodeUrl(base)}/v1/stream`);
   url.searchParams.set("id", id);
-  url.searchParams.set("token", token);
   if (connectionId) url.searchParams.set("connectionId", connectionId);
-  return url.toString();
+  // NOTE: Token is NOT in the URL — it is passed via Authorization header instead
+  // to prevent exposure in browser history, logs, and referrer headers.
+  return { url: url.toString(), token };
 }
 
 export const INSTALLERS = [
