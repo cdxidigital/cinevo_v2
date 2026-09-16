@@ -30,8 +30,8 @@ export type VerifiedUser = { id: string; email: string | null };
  * nobody is signed in. Safe to call from server functions and SSR loaders.
  *
  */
-export async function getSessionUser(): Promise<VerifiedUser | null> {
-  const session = await auth();
+export async function getSessionUser(bearerToken?: string): Promise<VerifiedUser | null> {
+  const session = await auth({ token: bearerToken });
   if (!session.userId) return null;
   const user = await clerkClient().users.getUser(session.userId);
   return { id: session.userId, email: user.primaryEmailAddress?.emailAddress ?? null };
@@ -43,8 +43,8 @@ export async function getSessionUser(): Promise<VerifiedUser | null> {
  * Throws `UnauthorizedError` when the caller is signed out; otherwise returns
  * the verified Clerk user id.
  */
-export async function requireUserId(): Promise<string> {
-  const user = await getSessionUser();
+export async function requireUserId(bearerToken?: string): Promise<string> {
+  const user = await getSessionUser(bearerToken);
   if (!user) throw new UnauthorizedError();
   return user.id;
 }

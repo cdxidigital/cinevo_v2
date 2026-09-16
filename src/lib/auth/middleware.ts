@@ -41,6 +41,6 @@ export const authMiddleware = createMiddleware({ type: "function" })
     const { assertSameSiteRequest } = await import("./isolation.server");
     const { requireUserId } = await import("./verify.server");
     assertSameSiteRequest();
-    const userId = await requireUserId();
+    const userId = await requireUserId(context.bearerToken);
     return next({ context: { userId } });
   });

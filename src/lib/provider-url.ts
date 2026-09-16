@@ -13,7 +13,7 @@ function isPrivateIpv4(address: string) {
 function isPrivateIpv6(address: string) {
   const normalized = address.toLowerCase().split("%")[0];
   if (normalized === "::1" || normalized === "::" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea") || normalized.startsWith("feb")) return true;
-  const mapped = normalized.match(/^::ffff:(\\d+\\.\\d+\\.\\d+\\.\\d+)$/);
+  const mapped = normalized.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
   return Boolean(mapped && isPrivateIpv4(mapped[1]));
 }
 
