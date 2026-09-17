@@ -1,0 +1,56 @@
+{
+  "defaultThemeId": "pulse",
+  "storageKey": "cinevo.prefs.theme",
+  "applyAttribute": "data-theme",
+  "applyOn": "document.documentElement",
+  "themes": [
+    {
+      "id": "pulse",
+      "label": "Pulse",
+      "feel": "Electric cyan on black — default",
+      "accent": "#0ccdf6",
+      "mapsToExisting": "pulse"
+    },
+    {
+      "id": "noir",
+      "label": "Noir",
+      "feel": "Stark B&W challenger — outdoor campaign",
+      "accent": "#ffffff",
+      "mapsToExisting": null
+    },
+    {
+      "id": "violet",
+      "label": "Violet",
+      "feel": "Cinematic violet — reference glass",
+      "accent": "#9b4dff",
+      "mapsToExisting": null
+    },
+    {
+      "id": "ember",
+      "label": "Ember",
+      "feel": "Warm late-night watch",
+      "accent": "#ff6b35",
+      "mapsToExisting": null
+    },
+    {
+      "id": "sage",
+      "label": "Sage",
+      "feel": "Calm library care",
+      "accent": "#5ddea6",
+      "mapsToExisting": null
+    },
+    {
+      "id": "day",
+      "label": "Day",
+      "feel": "Light canvas, same cyan accent",
+      "accent": "#0ccdf6",
+      "mapsToExisting": null
+    }
+  ],
+  "settingsUi": {
+    "route": "/app/settings",
+    "section": "Appearance",
+    "control": "Theme cards — label + feel + accent swatch; one selected",
+    "persist": "cinevo-store prefs.theme (extend ThemeId union)"
+  }
+}

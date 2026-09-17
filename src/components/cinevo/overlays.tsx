@@ -209,7 +209,7 @@ export function SettingsModal() {
           </button>
         </header>
         <div className="space-y-3">
-          <p className="font-ui text-xs tracking-[0.18em] text-cine-cyan">NEON THEME</p>
+          <p className="font-ui text-xs tracking-[0.18em] text-cine-cyan">APPEARANCE</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {THEMES.map((t) => (
               <button
@@ -366,16 +366,13 @@ export function CoreModal() {
                 ))}
               </ul>
             ) : null}
-            <button
-              type="button"
-              className="h-11 rounded-md bg-cine-cyan px-5 font-ui font-bold text-cine-bg"
-              onClick={() => {
-                setCoreOpen(false);
-                useCinevo.getState().setRoom("sidebar");
-              }}
+            <Link
+              to="/app/library"
+              className="inline-flex h-11 items-center rounded-md bg-cine-cyan px-5 font-ui font-bold text-cine-bg"
+              onClick={() => setCoreOpen(false)}
             >
               Open Library
-            </button>
+            </Link>
             <div>
               <p className="font-ui text-xs tracking-[0.18em] text-cine-cyan">NODE INSTALLERS</p>
               <p className="mt-1 mb-3 text-sm text-cine-muted">
@@ -383,7 +380,7 @@ export function CoreModal() {
               </p>
               <InstallerCards />
               <Link
-                to="/node"
+                to="/connect"
                 className="mt-3 inline-flex h-11 items-center font-ui text-sm font-bold text-cine-cyan"
                 onClick={() => setCoreOpen(false)}
               >

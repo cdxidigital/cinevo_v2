@@ -15,7 +15,7 @@ export function AppNotFoundComponent() {
           <Home className="size-4" aria-hidden="true" />
           Back to home
         </Link>
-        <Link className="cinevo-action" to="/app">
+        <Link className="cinevo-action" to="/app/home">
           <Search className="size-4" aria-hidden="true" />
           Open CINEVO
         </Link>

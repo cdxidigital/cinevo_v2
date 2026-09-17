@@ -10,19 +10,59 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R404RouteImport } from './routes/404'
+import { Route as R500RouteImport } from './routes/500'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NodeRouteImport } from './routes/node'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppHomeRouteImport } from './routes/app.home'
+import { Route as AppLibraryRouteImport } from './routes/app.library'
+import { Route as AppMoviesRouteImport } from './routes/app.movies'
+import { Route as AppSearchRouteImport } from './routes/app.search'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppShowsRouteImport } from './routes/app.shows'
+import { Route as Errors404RouteImport } from './routes/errors.404'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
+import { Route as LegalTermsRouteImport } from './routes/legal.terms'
+import { Route as ShareTokenRouteImport } from './routes/share.$token'
+import { Route as AppCoreTabRouteImport } from './routes/app.core.$tab'
+import { Route as AppMoviesIdRouteImport } from './routes/app.movies.$id'
+import { Route as AppShowsIdRouteImport } from './routes/app.shows.$id'
+import { Route as AppWatchIdRouteImport } from './routes/app.watch.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R404Route = R404RouteImport.update({
+  id: '/404',
+  path: '/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R500Route = R500RouteImport.update({
+  id: '/500',
+  path: '/500',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -40,43 +80,266 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHomeRoute = AppHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLibraryRoute = AppLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMoviesRoute = AppMoviesRouteImport.update({
+  id: '/movies',
+  path: '/movies',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSearchRoute = AppSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShowsRoute = AppShowsRouteImport.update({
+  id: '/shows',
+  path: '/shows',
+  getParentRoute: () => AppRoute,
+} as any)
+const Errors404Route = Errors404RouteImport.update({
+  id: '/errors/404',
+  path: '/errors/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareTokenRoute = ShareTokenRouteImport.update({
+  id: '/share/$token',
+  path: '/share/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppCoreTabRoute = AppCoreTabRouteImport.update({
+  id: '/core/$tab',
+  path: '/core/$tab',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMoviesIdRoute = AppMoviesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppMoviesRoute,
+} as any)
+const AppShowsIdRoute = AppShowsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppShowsRoute,
+} as any)
+const AppWatchIdRoute = AppWatchIdRouteImport.update({
+  id: '/watch/$id',
+  path: '/watch/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/404': typeof R404Route
+  '/500': typeof R500Route
+  '/app': typeof AppRouteWithChildren
+  '/connect': typeof ConnectRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/node': typeof NodeRoute
   '/signup': typeof SignupRoute
+  '/app/home': typeof AppHomeRoute
+  '/app/library': typeof AppLibraryRoute
+  '/app/movies': typeof AppMoviesRouteWithChildren
+  '/app/search': typeof AppSearchRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/shows': typeof AppShowsRouteWithChildren
+  '/errors/404': typeof Errors404Route
+  '/invite/$token': typeof InviteTokenRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/share/$token': typeof ShareTokenRoute
+  '/app/': typeof AppIndexRoute
+  '/app/core/$tab': typeof AppCoreTabRoute
+  '/app/movies/$id': typeof AppMoviesIdRoute
+  '/app/shows/$id': typeof AppShowsIdRoute
+  '/app/watch/$id': typeof AppWatchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/404': typeof R404Route
+  '/500': typeof R500Route
+  '/connect': typeof ConnectRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/node': typeof NodeRoute
   '/signup': typeof SignupRoute
+  '/app/home': typeof AppHomeRoute
+  '/app/library': typeof AppLibraryRoute
+  '/app/movies': typeof AppMoviesRouteWithChildren
+  '/app/search': typeof AppSearchRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/shows': typeof AppShowsRouteWithChildren
+  '/errors/404': typeof Errors404Route
+  '/invite/$token': typeof InviteTokenRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/share/$token': typeof ShareTokenRoute
+  '/app': typeof AppIndexRoute
+  '/app/core/$tab': typeof AppCoreTabRoute
+  '/app/movies/$id': typeof AppMoviesIdRoute
+  '/app/shows/$id': typeof AppShowsIdRoute
+  '/app/watch/$id': typeof AppWatchIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/404': typeof R404Route
+  '/500': typeof R500Route
+  '/app': typeof AppRouteWithChildren
+  '/connect': typeof ConnectRoute
+  '/help': typeof HelpRoute
   '/login': typeof LoginRoute
   '/node': typeof NodeRoute
   '/signup': typeof SignupRoute
+  '/app/home': typeof AppHomeRoute
+  '/app/library': typeof AppLibraryRoute
+  '/app/movies': typeof AppMoviesRouteWithChildren
+  '/app/search': typeof AppSearchRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/shows': typeof AppShowsRouteWithChildren
+  '/errors/404': typeof Errors404Route
+  '/invite/$token': typeof InviteTokenRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/share/$token': typeof ShareTokenRoute
+  '/app/': typeof AppIndexRoute
+  '/app/core/$tab': typeof AppCoreTabRoute
+  '/app/movies/$id': typeof AppMoviesIdRoute
+  '/app/shows/$id': typeof AppShowsIdRoute
+  '/app/watch/$id': typeof AppWatchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/node' | '/signup'
+  fullPaths:
+    | '/'
+    | '/404'
+    | '/500'
+    | '/app'
+    | '/connect'
+    | '/help'
+    | '/login'
+    | '/node'
+    | '/signup'
+    | '/app/home'
+    | '/app/library'
+    | '/app/movies'
+    | '/app/search'
+    | '/app/settings'
+    | '/app/shows'
+    | '/errors/404'
+    | '/invite/$token'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/share/$token'
+    | '/app/'
+    | '/app/core/$tab'
+    | '/app/movies/$id'
+    | '/app/shows/$id'
+    | '/app/watch/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/node' | '/signup'
-  id: '__root__' | '/' | '/app' | '/login' | '/node' | '/signup'
+  to:
+    | '/'
+    | '/404'
+    | '/500'
+    | '/connect'
+    | '/help'
+    | '/login'
+    | '/node'
+    | '/signup'
+    | '/app/home'
+    | '/app/library'
+    | '/app/movies'
+    | '/app/search'
+    | '/app/settings'
+    | '/app/shows'
+    | '/errors/404'
+    | '/invite/$token'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/share/$token'
+    | '/app'
+    | '/app/core/$tab'
+    | '/app/movies/$id'
+    | '/app/shows/$id'
+    | '/app/watch/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/404'
+    | '/500'
+    | '/app'
+    | '/connect'
+    | '/help'
+    | '/login'
+    | '/node'
+    | '/signup'
+    | '/app/home'
+    | '/app/library'
+    | '/app/movies'
+    | '/app/search'
+    | '/app/settings'
+    | '/app/shows'
+    | '/errors/404'
+    | '/invite/$token'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/share/$token'
+    | '/app/'
+    | '/app/core/$tab'
+    | '/app/movies/$id'
+    | '/app/shows/$id'
+    | '/app/watch/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRoute
+  R404Route: typeof R404Route
+  R500Route: typeof R500Route
+  AppRoute: typeof AppRouteWithChildren
+  ConnectRoute: typeof ConnectRoute
+  HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRoute
   NodeRoute: typeof NodeRoute
   SignupRoute: typeof SignupRoute
+  Errors404Route: typeof Errors404Route
+  InviteTokenRoute: typeof InviteTokenRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
+  ShareTokenRoute: typeof ShareTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -88,11 +351,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/500': {
+      id: '/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof R500RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -116,15 +407,186 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/home': {
+      id: '/app/home'
+      path: '/home'
+      fullPath: '/app/home'
+      preLoaderRoute: typeof AppHomeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/library': {
+      id: '/app/library'
+      path: '/library'
+      fullPath: '/app/library'
+      preLoaderRoute: typeof AppLibraryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/movies': {
+      id: '/app/movies'
+      path: '/movies'
+      fullPath: '/app/movies'
+      preLoaderRoute: typeof AppMoviesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/search': {
+      id: '/app/search'
+      path: '/search'
+      fullPath: '/app/search'
+      preLoaderRoute: typeof AppSearchRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/shows': {
+      id: '/app/shows'
+      path: '/shows'
+      fullPath: '/app/shows'
+      preLoaderRoute: typeof AppShowsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/errors/404': {
+      id: '/errors/404'
+      path: '/errors/404'
+      fullPath: '/errors/404'
+      preLoaderRoute: typeof Errors404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/$token': {
+      id: '/share/$token'
+      path: '/share/$token'
+      fullPath: '/share/$token'
+      preLoaderRoute: typeof ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/core/$tab': {
+      id: '/app/core/$tab'
+      path: '/core/$tab'
+      fullPath: '/app/core/$tab'
+      preLoaderRoute: typeof AppCoreTabRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/movies/$id': {
+      id: '/app/movies/$id'
+      path: '/$id'
+      fullPath: '/app/movies/$id'
+      preLoaderRoute: typeof AppMoviesIdRouteImport
+      parentRoute: typeof AppMoviesRoute
+    }
+    '/app/shows/$id': {
+      id: '/app/shows/$id'
+      path: '/$id'
+      fullPath: '/app/shows/$id'
+      preLoaderRoute: typeof AppShowsIdRouteImport
+      parentRoute: typeof AppShowsRoute
+    }
+    '/app/watch/$id': {
+      id: '/app/watch/$id'
+      path: '/watch/$id'
+      fullPath: '/app/watch/$id'
+      preLoaderRoute: typeof AppWatchIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppMoviesRouteChildren {
+  AppMoviesIdRoute: typeof AppMoviesIdRoute
+}
+
+const AppMoviesRouteChildren: AppMoviesRouteChildren = {
+  AppMoviesIdRoute: AppMoviesIdRoute,
+}
+
+const AppMoviesRouteWithChildren = AppMoviesRoute._addFileChildren(
+  AppMoviesRouteChildren,
+)
+
+interface AppShowsRouteChildren {
+  AppShowsIdRoute: typeof AppShowsIdRoute
+}
+
+const AppShowsRouteChildren: AppShowsRouteChildren = {
+  AppShowsIdRoute: AppShowsIdRoute,
+}
+
+const AppShowsRouteWithChildren = AppShowsRoute._addFileChildren(
+  AppShowsRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppHomeRoute: typeof AppHomeRoute
+  AppLibraryRoute: typeof AppLibraryRoute
+  AppMoviesRoute: typeof AppMoviesRouteWithChildren
+  AppSearchRoute: typeof AppSearchRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppShowsRoute: typeof AppShowsRouteWithChildren
+  AppIndexRoute: typeof AppIndexRoute
+  AppCoreTabRoute: typeof AppCoreTabRoute
+  AppWatchIdRoute: typeof AppWatchIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppHomeRoute: AppHomeRoute,
+  AppLibraryRoute: AppLibraryRoute,
+  AppMoviesRoute: AppMoviesRouteWithChildren,
+  AppSearchRoute: AppSearchRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppShowsRoute: AppShowsRouteWithChildren,
+  AppIndexRoute: AppIndexRoute,
+  AppCoreTabRoute: AppCoreTabRoute,
+  AppWatchIdRoute: AppWatchIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRoute,
+  R404Route: R404Route,
+  R500Route: R500Route,
+  AppRoute: AppRouteWithChildren,
+  ConnectRoute: ConnectRoute,
+  HelpRoute: HelpRoute,
   LoginRoute: LoginRoute,
   NodeRoute: NodeRoute,
   SignupRoute: SignupRoute,
+  Errors404Route: Errors404Route,
+  InviteTokenRoute: InviteTokenRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
+  ShareTokenRoute: ShareTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

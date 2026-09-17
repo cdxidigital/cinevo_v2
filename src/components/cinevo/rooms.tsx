@@ -1,5 +1,6 @@
 import { Play, Shuffle, Star } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   MOODS,
   byMood,
@@ -51,32 +52,31 @@ function HeroActions({
 }
 
 function PlatformArc() {
-  const setRoom = useCinevo((s) => s.setRoom);
-  const setCoreOpen = useCinevo((s) => s.setCoreOpen);
+  const navigate = useNavigate();
   const cards = [
     {
       title: "Private libraries",
       copy: "Folders on this computer, Plex on any server you own or share, Jellyfin through Node.",
       action: "Open",
-      onClick: () => setRoom("sidebar"),
+      onClick: () => void navigate({ to: "/app/library" }),
     },
     {
       title: "Friend sharing",
       copy: "Invite-only access with a name, a window, and a revoke button.",
       action: "Share",
-      onClick: () => setCoreOpen(true, "sharing"),
+      onClick: () => void navigate({ to: "/app/core/$tab", params: { tab: "sharing" } }),
     },
     {
       title: "Library care",
       copy: "Stewardship for the collection. No watch-time scores. No social pressure.",
       action: "Review",
-      onClick: () => setCoreOpen(true, "stewardship"),
+      onClick: () => void navigate({ to: "/app/core/$tab", params: { tab: "stewardship" } }),
     },
     {
       title: "Consent-led AI",
       copy: "Ask the titles already in this house. Nothing leaves until you opt in.",
       action: "Ask",
-      onClick: () => setCoreOpen(true, "ai"),
+      onClick: () => void navigate({ to: "/app/core/$tab", params: { tab: "ai" } }),
     },
   ];
   return (
@@ -111,8 +111,7 @@ export function StageRoom() {
   const tonight = useCinevo((s) => s.tonight);
   const mood = useCinevo((s) => s.mood);
   const shufflePlay = useCinevo((s) => s.shufflePlay);
-  const setCoreOpen = useCinevo((s) => s.setCoreOpen);
-  const setRoom = useCinevo((s) => s.setRoom);
+  const navigate = useNavigate();
   const aiConsent = useCinevo((s) => s.aiConsent);
   const sourceFilter = useCinevo((s) => s.sourceFilter);
   const setSourceFilter = useCinevo((s) => s.setSourceFilter);
@@ -146,7 +145,7 @@ export function StageRoom() {
   const ask = async () => {
     if (!question.trim() || pending) return;
     if (!aiConsent) {
-      setCoreOpen(true, "ai");
+      void navigate({ to: "/app/core/$tab", params: { tab: "ai" } });
       return;
     }
     setPending(true);
@@ -217,10 +216,10 @@ export function StageRoom() {
                 shared, remote.
               </p>
               <HeroActions
-                onPlay={() => setRoom("sidebar")}
+                onPlay={() => void navigate({ to: "/app/library" })}
                 playLabel="Add library"
                 playIcon={false}
-                onMore={() => setCoreOpen(true, "libraries")}
+                onMore={() => void navigate({ to: "/app/core/$tab", params: { tab: "libraries" } })}
                 moreLabel="Open Core"
               />
             </>

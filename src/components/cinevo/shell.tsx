@@ -1,36 +1,31 @@
 import { Film, LibraryBig, Menu, Search, Settings2, Sparkles, Tv, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { useCinevo, type Room } from "@/lib/cinevo-store";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useCinevo } from "@/lib/cinevo-store";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 
-const NAV: { id: Room; label: string; icon: typeof Sparkles }[] = [
-  { id: "stage", label: "Home", icon: Sparkles },
-  { id: "movies", label: "Movies", icon: Film },
-  { id: "shows", label: "Series", icon: Tv },
-  { id: "sidebar", label: "My library", icon: LibraryBig },
-];
+const APP_NAV = [
+  { to: "/app/home", label: "Home", icon: Sparkles },
+  { to: "/app/movies", label: "Movies", icon: Film },
+  { to: "/app/shows", label: "Series", icon: Tv },
+  { to: "/app/library", label: "Library", icon: LibraryBig },
+] as const;
 
+/** Single top AppNav — URL is canonical; no zustand room for nav. */
 export function Shell({
   children,
   overlays,
+  variant = "app",
 }: {
   children: React.ReactNode;
   overlays?: React.ReactNode;
+  variant?: "app" | "marketing";
 }) {
-  const room = useCinevo((s) => s.room);
-  const setRoom = useCinevo((s) => s.setRoom);
-  const setSearchOpen = useCinevo((s) => s.setSearchOpen);
-  const setSettingsOpen = useCinevo((s) => s.setSettingsOpen);
-  const setCoreOpen = useCinevo((s) => s.setCoreOpen);
   const night = useCinevo((s) => s.prefs.nightMode);
   const zen = useCinevo((s) => s.prefs.zenMode);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [drawer, setDrawer] = useState(false);
-
-  useEffect(() => {
-    if (!NAV.some((item) => item.id === room)) setRoom("stage");
-  }, [room, setRoom]);
 
   useEffect(() => {
     if (!drawer) return;
@@ -45,31 +40,62 @@ export function Shell({
     };
   }, [drawer]);
 
-  const go = (id: Room) => {
-    setRoom(id);
-    setDrawer(false);
+  const isOn = (to: string) => {
+    if (to.includes("$")) {
+      const base = to.split("/$")[0];
+      return pathname === base || pathname.startsWith(`${base}/`);
+    }
+    return pathname === to || pathname.startsWith(`${to}/`);
   };
+  const isHomeStage = pathname === "/app/home" || pathname === "/app";
+
+  if (variant === "marketing") {
+    return (
+      <div className={cn("cinevo-house", night && "cinevo-night")}>
+        <header className="top-nav" style={{ minHeight: "var(--cine-nav-h)" }}>
+          <Link to="/" aria-label="CINEVO home" className="top-nav__brand">
+            <Logo size="sm" tagline={false} />
+          </Link>
+          <nav className="top-nav__links max-md:hidden" aria-label="Main">
+            <Link to="/connect" className={cn(isOn("/connect") && "is-on")}>
+              Connect
+            </Link>
+            <Link to="/help" className={cn(isOn("/help") && "is-on")}>
+              Help
+            </Link>
+            <Link to="/login">Log in</Link>
+          </nav>
+          <div className="top-nav__tools">
+            <Link to="/connect" className="top-nav__core max-md:hidden">
+              Connect
+            </Link>
+          </div>
+        </header>
+        <main className="house-main house-main--page">{children}</main>
+        {overlays}
+      </div>
+    );
+  }
 
   return (
     <div className={cn("cinevo-house", night && "cinevo-night", zen && "cinevo-zen")}>
       <div className="house-still" />
       <div className="house-ambient" />
-      <header className="top-nav">
-        <Link to="/" aria-label="CINEVO home" className="top-nav__brand">
+      <header className="top-nav" style={{ minHeight: "var(--cine-nav-h)" }}>
+        <Link to="/app/home" aria-label="CINEVO home" className="top-nav__brand">
           <Logo size="sm" tagline={false} />
         </Link>
         <nav className="top-nav__links max-md:hidden" aria-label="Main">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => go(item.id)}
-              className={cn(room === item.id && "is-on")}
-              aria-current={room === item.id ? "page" : undefined}
+          {APP_NAV.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={cn(isOn(item.to) && "is-on")}
+              aria-current={isOn(item.to) ? "page" : undefined}
             >
               <item.icon aria-hidden="true" />
               {item.label}
-            </button>
+            </Link>
           ))}
         </nav>
         <div className="top-nav__tools">
@@ -81,20 +107,15 @@ export function Shell({
           >
             <Menu size={18} />
           </button>
-          <button type="button" className="top-nav__core max-md:hidden" onClick={() => setCoreOpen(true)}>
+          <Link to="/app/core/$tab" params={{ tab: "libraries" }} className="top-nav__core max-md:hidden">
             Core
-          </button>
-          <button type="button" aria-label="Search" className="top-nav__icon" onClick={() => setSearchOpen(true)}>
+          </Link>
+          <Link to="/app/search" aria-label="Search" className="top-nav__icon">
             <Search size={18} />
-          </button>
-          <button
-            type="button"
-            aria-label="Settings"
-            className="top-nav__icon"
-            onClick={() => setSettingsOpen(true)}
-          >
+          </Link>
+          <Link to="/app/settings" aria-label="Settings" className="top-nav__icon">
             <Settings2 size={18} />
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -108,37 +129,49 @@ export function Shell({
               </button>
             </div>
             <nav className="flex flex-col gap-1" aria-label="Main">
-              {NAV.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => go(item.id)}
+              {APP_NAV.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setDrawer(false)}
                   className={cn(
                     "flex h-11 w-full items-center rounded-md px-3 font-ui text-sm font-medium",
-                    room === item.id ? "bg-cine-surface text-cine-text" : "text-cine-muted",
+                    isOn(item.to) ? "bg-cine-surface text-cine-text" : "text-cine-muted",
                   )}
-                  aria-current={room === item.id ? "page" : undefined}
+                  aria-current={isOn(item.to) ? "page" : undefined}
                 >
                   <item.icon aria-hidden="true" />
                   {item.label}
-                </button>
+                </Link>
               ))}
-              <button
-                type="button"
+              <Link
+                to="/app/core/$tab"
+                params={{ tab: "libraries" }}
                 className="flex h-11 w-full items-center rounded-md px-3 font-ui text-sm font-medium text-cine-muted"
-                onClick={() => {
-                  setCoreOpen(true);
-                  setDrawer(false);
-                }}
+                onClick={() => setDrawer(false)}
               >
                 Core
-              </button>
+              </Link>
+              <Link
+                to="/app/search"
+                className="flex h-11 w-full items-center rounded-md px-3 font-ui text-sm font-medium text-cine-muted"
+                onClick={() => setDrawer(false)}
+              >
+                Search
+              </Link>
+              <Link
+                to="/app/settings"
+                className="flex h-11 w-full items-center rounded-md px-3 font-ui text-sm font-medium text-cine-muted"
+                onClick={() => setDrawer(false)}
+              >
+                Settings
+              </Link>
             </nav>
           </aside>
         </div>
       ) : null}
 
-      <main className={cn("house-main", room !== "stage" && "house-main--page")}>{children}</main>
+      <main className={cn("house-main", !isHomeStage && "house-main--page")}>{children}</main>
       {overlays}
     </div>
   );

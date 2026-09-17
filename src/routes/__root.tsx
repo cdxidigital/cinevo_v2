@@ -34,7 +34,7 @@ export const Route = createRootRoute({
   }),
   notFoundComponent: AppNotFoundComponent,
   component: () => (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="pulse" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

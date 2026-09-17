@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 630" width="2480" height="2520">
+  <rect x="0" y="0" width="620" height="630" fill="#FFFFFF"/>
+  
+    <rect x="20" y="20" width="150" height="100" rx="14" fill="#FF4DA5"/>
+    <text x="190" y="54" font-size="22" font-weight="700" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">Primary Accent — Pink</text>
+    <text x="190" y="82" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">HEX #FF4DA5</text>
+    <text x="190" y="106" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">RGB 255, 77, 165   ·   CMYK 0, 70, 35, 0</text>
+    
+    <rect x="20" y="138" width="150" height="100" rx="14" fill="#8B2FFF"/>
+    <text x="190" y="172" font-size="22" font-weight="700" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">Primary Color — Purple</text>
+    <text x="190" y="200" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">HEX #8B2FFF</text>
+    <text x="190" y="224" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">RGB 139, 47, 255   ·   CMYK 45, 82, 0, 0</text>
+    
+    <rect x="20" y="256" width="150" height="100" rx="14" fill="#55CFFF"/>
+    <text x="190" y="290" font-size="22" font-weight="700" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">Secondary Color — Cyan</text>
+    <text x="190" y="318" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">HEX #55CFFF</text>
+    <text x="190" y="342" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">RGB 85, 207, 255   ·   CMYK 67, 19, 0, 0</text>
+    
+    <rect x="20" y="374" width="150" height="100" rx="14" fill="#FF9F1C"/>
+    <text x="190" y="408" font-size="22" font-weight="700" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">Primary Color — Orange</text>
+    <text x="190" y="436" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">HEX #FF9F1C</text>
+    <text x="190" y="460" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">RGB 255, 159, 28   ·   CMYK 0, 38, 89, 0</text>
+    
+    <rect x="20" y="492" width="150" height="100" rx="14" fill="#1A1A1E"/>
+    <text x="190" y="526" font-size="22" font-weight="700" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">Secondary Color — Ink</text>
+    <text x="190" y="554" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">HEX #1A1A1E</text>
+    <text x="190" y="578" font-size="18" fill="#1A1A1E" font-family="Poppins, Arial, sans-serif">RGB 26, 26, 30   ·   CMYK 0, 0, 0, 90</text>
+    
+</svg>

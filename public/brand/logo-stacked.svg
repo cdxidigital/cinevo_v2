@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340" width="1200" height="1360">
+  <g transform="translate(35.25,10) scale(0.85)">
+    <polygon points="70.00,40.00 70.00,120.00 113.33,120.00" fill="#FF4DA5" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="70.00,120.00 70.00,200.00 113.33,120.00" fill="#C13BE0" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="70.00,200.00 135.00,160.00 113.33,120.00" fill="#FF9F1C" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="135.00,160.00 200.00,120.00 113.33,120.00" fill="#3E8EFF" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="200.00,120.00 135.00,80.00 113.33,120.00" fill="#55CFFF" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="135.00,80.00 70.00,40.00 113.33,120.00" fill="#8B2FFF" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.6" stroke-linejoin="round"/>
+    <polygon points="150.00,88.00 168.00,100.00 150.00,108.00" fill="#FFFFFF" fill-opacity="0.55"/>
+  </g>
+  <text x="150" y="250" font-size="60" fill="#1A1A1E" text-anchor="middle" font-family="Poppins, 'Avenir Next', 'Helvetica Neue', Arial, sans-serif" font-weight="700" letter-spacing="2">CINEVO</text>
+</svg>

@@ -274,7 +274,7 @@ export function AddLibrary() {
       {!nodeToken ? (
         <p className="text-sm text-cine-muted">
           Plex signs in from here. Jellyfin and disk paths need{" "}
-          <Link to="/node" className="text-cine-cyan" onClick={() => setCoreOpen(false)}>
+          <Link to="/connect" className="text-cine-cyan" onClick={() => setCoreOpen(false)}>
             a paired CINEVO Node
           </Link>
           . Folder pick works in this browser now.
