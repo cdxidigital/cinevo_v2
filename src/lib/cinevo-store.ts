@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { byMood, type Mood, type Title } from "./catalog";
 import type { LibSource, LibraryTitle, ThemeId } from "./library";
-import { THEMES, makePoster } from "./library";
+import { THEMES, makePoster, resolveThemeId } from "./library";
 import type { PlexServer } from "./plex";
 import {
   DEFAULT_DASHBOARD_WIDGETS,
@@ -360,8 +360,9 @@ export const useCinevo = create<CinevoState>()(
       clearNotices: () => set({ notices: [] }),
       patchPrefs: (p) => set({ prefs: { ...get().prefs, ...p } }),
       setTheme: (theme) => {
-        set({ prefs: { ...get().prefs, theme } });
-        if (typeof document !== "undefined") document.documentElement.setAttribute("data-theme", theme);
+        const id = resolveThemeId(theme);
+        set({ prefs: { ...get().prefs, theme: id } });
+        if (typeof document !== "undefined") document.documentElement.dataset.theme = id;
       },
       setDashboardWidgets: (dashboardWidgets) =>
         set({ prefs: { ...get().prefs, dashboardWidgets: sanitizeDashboardWidgets(dashboardWidgets) } }),
@@ -389,7 +390,7 @@ export const useCinevo = create<CinevoState>()(
           category: "sharing",
           title: "Private invitation created",
           message: `${invite.name} has ${days} days of access to selected libraries.`,
-          href: "/app?core=sharing",
+          href: "/app/core/sharing",
         });
         return invite;
       },
@@ -403,7 +404,7 @@ export const useCinevo = create<CinevoState>()(
             category: "sharing",
             title: status === "revoked" ? "Invitation revoked" : status === "paused" ? "Invitation paused" : "Invitation restored",
             message: `${current.name} is now ${status}.`,
-            href: "/app?core=sharing",
+            href: "/app/core/sharing",
           });
         }
       },
@@ -415,7 +416,7 @@ export const useCinevo = create<CinevoState>()(
           message: aiConsent
             ? "CINEVO may use selected library metadata when you ask."
             : "Metadata assistance is off until you opt in again.",
-          href: "/app?core=ai",
+          href: "/app/core/ai",
         });
       },
       setNodeUrl: (nodeUrl) => set({ nodeUrl }),
@@ -508,7 +509,7 @@ export const useCinevo = create<CinevoState>()(
       skipHydration: true,
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<CinevoState>;
-        const theme = p.prefs?.theme && THEMES.some((t) => t.id === p.prefs?.theme) ? p.prefs.theme : "pulse";
+        const theme = resolveThemeId(p.prefs?.theme);
         return {
           ...current,
           ...p,

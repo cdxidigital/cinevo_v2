@@ -29,12 +29,15 @@ export type VerifiedUser = { id: string; email: string | null };
  * Resolve the signed-in user from the current Clerk request, or `null` when
  * nobody is signed in. Safe to call from server functions and SSR loaders.
  *
+ * Note: Clerk's TanStack `auth()` no longer accepts a bearer `token` option —
+ * session comes from request middleware context.
  */
-export async function getSessionUser(bearerToken?: string): Promise<VerifiedUser | null> {
-  const session = await auth({ token: bearerToken });
-  if (!session.userId) return null;
-  const user = await clerkClient().users.getUser(session.userId);
-  return { id: session.userId, email: user.primaryEmailAddress?.emailAddress ?? null };
+export async function getSessionUser(_bearerToken?: string): Promise<VerifiedUser | null> {
+  const session = await auth();
+  const userId = "userId" in session ? session.userId : null;
+  if (!userId) return null;
+  const user = await clerkClient().users.getUser(userId);
+  return { id: userId, email: user.primaryEmailAddress?.emailAddress ?? null };
 }
 
 /**

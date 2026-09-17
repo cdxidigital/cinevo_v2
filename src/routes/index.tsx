@@ -7,10 +7,9 @@ import { AndroidBuildInstructions, PlatformDownloads } from "@/components/cinevo
 export const Route = createFileRoute("/")({ component: Home });
 
 const NAV = [
-  { label: "Home", href: "/" },
-  { label: "Your library", to: "/app" as const },
-  { label: "Node", to: "/node" as const },
-  { label: "CINEVO Core", href: "/app" },
+  { label: "Connect", to: "/connect" as const },
+  { label: "Help", to: "/help" as const },
+  { label: "Log in", to: "/login" as const },
 ];
 
 const HERO_DESCRIPTION =
@@ -29,7 +28,7 @@ const HIGHLIGHTS = [
     title: "Choose exactly what belongs in view.",
     description: "Folders, Plex, or Jellyfin through Node. Select the sections CINEVO may index. Media stays on your machine.",
     action: "Set up libraries",
-    to: "/app" as const,
+    to: "/app/home" as const,
   },
   {
     n: "02",
@@ -37,7 +36,7 @@ const HIGHLIGHTS = [
     title: "Share with care, never by default.",
     description: "Create time-bound, revocable invitations. The owner’s boundary is visible at every step.",
     action: "Manage sharing",
-    to: "/app" as const,
+    to: "/app/home" as const,
   },
   {
     n: "03",
@@ -45,7 +44,7 @@ const HIGHLIGHTS = [
     title: "A quieter way to care for your collection.",
     description: "Library health, setup, and consent — without turning private media into a social performance.",
     action: "Explore Core",
-    to: "/app" as const,
+    to: "/app/home" as const,
   },
   {
     n: "04",
@@ -53,7 +52,7 @@ const HIGHLIGHTS = [
     title: "Thoughtful suggestions on your terms.",
     description: "Ask only the titles already in this house. Nothing leaves until you opt in.",
     action: "See AI controls",
-    to: "/app" as const,
+    to: "/app/home" as const,
   },
 ];
 
@@ -65,17 +64,11 @@ function Home() {
           <Logo size="md" />
         </Link>
         <nav aria-label="Homepage">
-          {NAV.map((item) =>
-            item.to ? (
-              <Link key={item.label} to={item.to}>
-                {item.label}
-              </Link>
-            ) : (
-              <a key={item.label} href={item.href}>
-                {item.label}
-              </a>
-            ),
-          )}
+          {NAV.map((item) => (
+            <Link key={item.label} to={item.to}>
+              {item.label}
+            </Link>
+          ))}
         </nav>
         <div className="public-nav__actions">
           <Link to="/login" className="public-nav__login">
@@ -103,10 +96,10 @@ function Home() {
             </h1>
             <p suppressHydrationWarning>{HERO_DESCRIPTION}</p>
             <div className="public-hero__actions">
-              <Link to="/app" className="public-primary">
+              <Link to="/connect" className="public-primary">
                 <Play size={15} fill="currentColor" /> Create your library
               </Link>
-              <Link to="/app" className="public-secondary">
+              <Link to="/app/home" className="public-secondary">
                 Open your library <ArrowDownRight size={16} />
               </Link>
             </div>
@@ -233,7 +226,7 @@ function Home() {
           </div>
           <div>
             <p>Connect the library you trust. Choose what CINEVO knows. Then settle in.</p>
-            <Link to="/app" className="public-primary">
+            <Link to="/connect" className="public-primary">
               Begin with your library <ArrowRight size={16} />
             </Link>
           </div>
@@ -245,9 +238,14 @@ function Home() {
           <Logo size="md" />
         </Link>
         <p>Your media. Your moment.</p>
-        <Link to="/app">
-          Open your library <ArrowRight size={13} />
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link to="/help">Help</Link>
+          <Link to="/legal/terms">Terms</Link>
+          <Link to="/legal/privacy">Privacy</Link>
+          <Link to="/app/home">
+            Open your library <ArrowRight size={13} />
+          </Link>
+        </div>
       </footer>
     </div>
   );

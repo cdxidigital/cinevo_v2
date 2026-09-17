@@ -1,6 +1,7 @@
 import { Check, ListPlus, Play, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Title } from "@/lib/catalog";
+import { useNavigate } from "@tanstack/react-router";
 import { useCinevo } from "@/lib/cinevo-store";
 
 export function PosterCard({
@@ -11,14 +12,26 @@ export function PosterCard({
 }) {
   const progress = useCinevo((s) => s.progress[title.id]);
   const fav = useCinevo((s) => s.favorites.includes(title.id));
+  const navigate = useNavigate();
   const openTitle = useCinevo((s) => s.openTitle);
   const play = useCinevo((s) => s.play);
+  const goDetail = () => {
+    openTitle(title.id);
+    void navigate({
+      to: title.kind === "series" ? "/app/shows/$id" : "/app/movies/$id",
+      params: { id: title.id },
+    });
+  };
+  const goWatch = () => {
+    play(title.id);
+    void navigate({ to: "/app/watch/$id", params: { id: title.id } });
+  };
   const toggleFavorite = useCinevo((s) => s.toggleFavorite);
 
   return (
     <article className="group min-w-0">
       <div className="poster-frame rounded-md">
-        <button type="button" onClick={() => openTitle(title.id)} aria-label={`Open ${title.title}`} className="block w-full">
+        <button type="button" onClick={goDetail} aria-label={`Open ${title.title}`} className="block w-full">
           <img src={title.poster} alt="" className="aspect-2/3 w-full object-cover" />
         </button>
         <span className="poster-shade" />
@@ -31,14 +44,14 @@ export function PosterCard({
         <button
           type="button"
           aria-label={`Play ${title.title}`}
-          onClick={() => play(title.id)}
+          onClick={goWatch}
           className="poster-play"
         >
           <Play size={16} fill="currentColor" />
         </button>
       </div>
       <div className="poster-meta mt-2 flex items-start justify-between gap-2">
-        <button type="button" onClick={() => openTitle(title.id)} className="min-w-0 text-left">
+        <button type="button" onClick={goDetail} className="min-w-0 text-left">
           <h3 className="truncate font-ui text-sm font-semibold tracking-wide">{title.title}</h3>
           <p className="font-mono text-xs text-cine-faint">
             {title.rating > 0 ? (

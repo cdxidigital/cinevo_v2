@@ -1,4 +1,66 @@
 @import "tailwindcss";
+@import "./styles/cine-tokens.css";
+
+@theme {
+  --color-cine-bg: var(--cine-bg);
+  --color-cine-surface: var(--cine-surface);
+  --color-cine-elevated: var(--cine-surface);
+  --color-cine-well: color-mix(in srgb, var(--cine-bg) 82%, black);
+  --color-cine-text: var(--cine-text);
+  --color-cine-muted: var(--cine-muted);
+  --color-cine-faint: color-mix(in srgb, var(--cine-muted) 85%, transparent);
+  --color-cine-border: var(--cine-border);
+  --color-cine-line: var(--cine-border);
+  --color-cine-cyan: var(--cine-accent);
+  --color-cine-violet: #9b4dff;
+  --color-cine-magenta: #ff4fd8;
+  --color-cine-amber: #ffb020;
+  --color-cine-danger: var(--cine-danger);
+  --font-ui: var(--cine-font-ui);
+  --font-display: var(--cine-font-display);
+  --font-sans: var(--cine-font-ui);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --spacing-cine-nav-h: var(--cine-nav-h);
+}
+
+/* Bridge locked kit tokens into legacy --color-cine-* used across the app */
+:root,
+html[data-theme] {
+  --color-cine-bg: var(--cine-bg);
+  --color-cine-surface: var(--cine-surface);
+  --color-cine-elevated: var(--cine-surface);
+  --color-cine-well: color-mix(in srgb, var(--cine-bg) 82%, black);
+  --color-cine-text: var(--cine-text);
+  --color-cine-muted: var(--cine-muted);
+  --color-cine-faint: color-mix(in srgb, var(--cine-muted) 85%, transparent);
+  --color-cine-border: var(--cine-border);
+  --color-cine-line: var(--cine-border);
+  --color-cine-cyan: var(--cine-accent);
+  --color-cine-danger: var(--cine-danger);
+}
+
+html[data-theme="day"] {
+  --color-cine-elevated: #ffffff;
+  --color-cine-well: #efeaf6;
+  --color-cine-violet: #6c36ba;
+}
+
+html[data-theme="violet"] {
+  --color-cine-violet: #9b4dff;
+}
+
+html[data-theme="ember"] {
+  --color-cine-violet: #ff6b35;
+}
+
+html[data-theme="sage"] {
+  --color-cine-violet: #5ddea6;
+}
+
+html[data-theme="noir"] {
+  --color-cine-violet: #ffffff;
+}
+
 
 
 /* Branded route fallback keeps navigation calm when a deep link misses. */
@@ -205,58 +267,6 @@
   }
 }
 
-html[data-theme="pulse"] {
-  --color-cine-cyan: #0ccdf6;
-  --color-cine-violet: #9b4dff;
-}
-html[data-theme="nova"] {
-  --color-cine-cyan: #49dfff;
-  --color-cine-bg: #05040a;
-}
-html[data-theme="iris"] {
-  --color-cine-bg: #f7f5fa;
-  --color-cine-elevated: #ffffff;
-  --color-cine-surface: #f2eef7;
-  --color-cine-well: #ece7f3;
-  --color-cine-text: #1b1323;
-  --color-cine-muted: #625a6c;
-  --color-cine-faint: #837b8d;
-  --color-cine-border: rgb(34 23 47 / 16%);
-  --color-cine-line: rgb(34 23 47 / 18%);
-  --color-cine-cyan: #6c36ba;
-}
-html[data-theme="ember"] {
-  --color-cine-bg: #12080e;
-  --color-cine-elevated: #1c1016;
-  --color-cine-surface: #24151c;
-  --color-cine-cyan: #cb53a3;
-}
-html[data-theme="graphite"] {
-  --color-cine-bg: #0d1117;
-  --color-cine-elevated: #151b24;
-  --color-cine-surface: #1d2631;
-  --color-cine-well: #090d12;
-  --color-cine-text: #e8eef5;
-  --color-cine-muted: #a7b4c3;
-  --color-cine-faint: #718093;
-  --color-cine-border: rgb(217 226 236 / 16%);
-  --color-cine-line: rgb(217 226 236 / 22%);
-  --color-cine-cyan: #d9e2ec;
-  --color-cine-violet: #90a4ba;
-}
-html[data-theme="aurora"] {
-  --color-cine-bg: #071210;
-  --color-cine-elevated: #0d1d19;
-  --color-cine-surface: #132b25;
-  --color-cine-well: #04100d;
-  --color-cine-text: #ebfff6;
-  --color-cine-muted: #a8c9bc;
-  --color-cine-faint: #759d8e;
-  --color-cine-border: rgb(121 242 192 / 17%);
-  --color-cine-line: rgb(121 242 192 / 25%);
-  --color-cine-cyan: #79f2c0;
-  --color-cine-violet: #44c6a0;
-}
 
 /* CINEVO brand direction: charcoal surfaces, white type, electric-blue action color. */
 .public-home {
@@ -332,12 +342,12 @@ html[data-theme="aurora"] {
   display: none;
 }
 
-.swatch[data-swatch="pulse"] { background: #9b4dff; }
-.swatch[data-swatch="nova"] { background: #0ccdf6; }
-.swatch[data-swatch="iris"] { background: #f2eef7; }
-.swatch[data-swatch="ember"] { background: #cb53a3; }
-.swatch[data-swatch="ion"] { background: #7c5cff; }
-.swatch[data-swatch="glacier"] { background: #c5a4ff; }
+.swatch[data-swatch="pulse"] { background: #0ccdf6; }
+.swatch[data-swatch="noir"] { background: #ffffff; }
+.swatch[data-swatch="violet"] { background: #9b4dff; }
+.swatch[data-swatch="ember"] { background: #ff6b35; }
+.swatch[data-swatch="sage"] { background: #5ddea6; }
+.swatch[data-swatch="day"] { background: #0ccdf6; }
 
 @keyframes cine-ken {
   from { transform: scale(1.04); }
@@ -847,8 +857,8 @@ html[data-theme="aurora"] {
   filter: saturate(0.18) contrast(1.18) brightness(0.5);
 }
 
-html[data-theme="iris"] .house-still,
-html[data-theme="iris"] .house-ambient {
+html[data-theme="day"] .house-still,
+html[data-theme="day"] .house-ambient {
   display: none;
 }
 
@@ -2076,8 +2086,6 @@ html[data-theme="iris"] .house-ambient {
 .cinevo-house .poster-frame { border-radius: .4rem; }
 .cinevo-house .poster-frame:hover { outline: 2px solid var(--color-cine-cyan); outline-offset: 2px; transform: translateY(-3px) scale(1.02); }
 .cinevo-house .house-page { padding-inline: var(--plex-gutter); }
-.swatch[data-swatch="graphite"] { background: #d9e2ec; }
-.swatch[data-swatch="aurora"] { background: #79f2c0; }
 
 @media (max-width: 760px) {
   .cinevo-house .top-nav { grid-template-columns: 1fr auto; gap: .5rem; width: calc(100% - 1rem); }
@@ -2110,3 +2118,43 @@ html[data-theme="iris"] .house-ambient {
   .public-footer { align-items: start; flex-direction: column; }
 }
 
+
+
+/* AppNav Links (route-canonical chrome) */
+.top-nav__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border-radius: .55rem;
+  min-height: 40px;
+  padding-inline: .8rem;
+  color: #9ca7b5;
+  font-size: .75rem;
+  font-family: var(--font-ui);
+  font-weight: 650;
+}
+.top-nav__links a:hover,
+.top-nav__links a.is-on {
+  color: #fff;
+  background: rgb(255 255 255 / 9%);
+}
+.top-nav__links a.is-on {
+  position: relative;
+}
+.top-nav__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: .55rem;
+  color: inherit;
+}
+.brand__img { display: block; }
+.brand__tag {
+  display: block;
+  color: var(--color-cine-muted);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 500;
+}
+.brand:has(.brand__img) { gap: 10px; flex-wrap: wrap; }

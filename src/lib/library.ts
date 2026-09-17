@@ -183,12 +183,28 @@ export function remoteTitle(input: {
 }
 
 export const THEMES = [
-  { id: "pulse", label: "Night", accent: "#f5f5f5" },
-  { id: "nova", label: "Rebound", accent: "#3b7bff" },
-  { id: "iris", label: "Paper", accent: "#ecece8" },
-  { id: "ember", label: "Studio", accent: "#d6d0c4" },
-  { id: "graphite", label: "Graphite", accent: "#d9e2ec" },
-  { id: "aurora", label: "Aurora", accent: "#79f2c0" },
+  { id: "pulse", label: "Pulse", feel: "Electric cyan on black — default", accent: "#0ccdf6" },
+  { id: "noir", label: "Noir", feel: "Stark B&W challenger — outdoor campaign", accent: "#ffffff" },
+  { id: "violet", label: "Violet", feel: "Cinematic violet — reference glass", accent: "#9b4dff" },
+  { id: "ember", label: "Ember", feel: "Warm late-night watch", accent: "#ff6b35" },
+  { id: "sage", label: "Sage", feel: "Calm library care", accent: "#5ddea6" },
+  { id: "day", label: "Day", feel: "Light canvas, same cyan accent", accent: "#0ccdf6" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
+
+/** Map legacy persisted theme ids onto the locked kit catalog. */
+export const LEGACY_THEME_MAP: Record<string, ThemeId> = {
+  nova: "pulse",
+  iris: "day",
+  graphite: "noir",
+  aurora: "sage",
+  ion: "violet",
+  glacier: "day",
+};
+
+export function resolveThemeId(raw: string | undefined | null): ThemeId {
+  if (!raw) return "pulse";
+  if (THEMES.some((t) => t.id === raw)) return raw as ThemeId;
+  return LEGACY_THEME_MAP[raw] ?? "pulse";
+}

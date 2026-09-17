@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useCinevo } from "@/lib/cinevo-store";
+import { resolveThemeId } from "@/lib/library";
 import { loadAccountState, saveAccountState } from "@/lib/account-state";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { restoreFolderBlobs } from "@/lib/folder-handles";
@@ -20,8 +21,8 @@ export function Rehydrate() {
       /* ignore */
     }
     void Promise.resolve(useCinevo.persist.rehydrate()).then(async () => {
-      const theme = useCinevo.getState().prefs.theme || "pulse";
-      document.documentElement.setAttribute("data-theme", theme);
+      const theme = resolveThemeId(useCinevo.getState().prefs.theme);
+      document.documentElement.dataset.theme = theme;
       const restored = await restoreFolderBlobs();
       if (restored) {
         const s = useCinevo.getState();

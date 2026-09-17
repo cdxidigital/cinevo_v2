@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useCinevo } from "@/lib/cinevo-store";
 import { THEMES } from "@/lib/library";
 
@@ -9,6 +10,7 @@ function isTyping(target: EventTarget | null) {
 }
 
 export function Keys() {
+  const navigate = useNavigate();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const s = useCinevo.getState();
@@ -26,7 +28,11 @@ export function Keys() {
       if (isTyping(e.target)) return;
       if (e.key === "/") {
         e.preventDefault();
-        s.setSearchOpen(true);
+        void navigate({ to: "/app/search" });
+      }
+      if (e.key === "," && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        void navigate({ to: "/app/settings" });
       }
       if (e.key === "t" || e.key === "T") {
         if (s.searchOpen || s.settingsOpen || s.coreOpen || s.selectedId) return;
@@ -38,6 +44,6 @@ export function Keys() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [navigate]);
   return null;
 }

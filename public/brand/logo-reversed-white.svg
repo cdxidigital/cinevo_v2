@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" width="2880" height="960">
+  <rect x="0" y="0" width="720" height="240" rx="20" fill="#1A1A1E"/>
+  <g transform="translate(40,20) scale(0.8)">
+    <polygon points="70.00,40.00 70.00,200.00 200.00,120.00" fill="#FFFFFF"/>
+  </g>
+  <text x="298" y="138" font-size="84" fill="#FFFFFF" text-anchor="start" font-family="Poppins, 'Avenir Next', 'Helvetica Neue', Arial, sans-serif" font-weight="700" letter-spacing="2">CINEVO</text>
+</svg>

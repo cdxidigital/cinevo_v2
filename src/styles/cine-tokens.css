@@ -1,0 +1,101 @@
+/**
+ * CINEVO design tokens — Kit lock + selectable user themes.
+ * Map into Tailwind / styles.css as CSS variables on :root and [data-theme].
+ *
+ * Default product accent from live v2: --color-cine-cyan ≈ #0ccdf6
+ * Danger from auth errors: #ff9d9d
+ */
+
+:root,
+[data-theme="pulse"] {
+  --cine-bg: #0a0a0a;
+  --cine-surface: #141414;
+  --cine-text: #f5f5f5;
+  --cine-muted: #9a9a9a;
+  --cine-border: #2a2a2a;
+  --cine-accent: #0ccdf6;
+  --cine-danger: #ff9d9d;
+  --cine-radius-card: 8px;
+  --cine-radius-control: 999px;
+  --cine-space-1: 4px;
+  --cine-space-2: 8px;
+  --cine-space-3: 12px;
+  --cine-space-4: 16px;
+  --cine-space-5: 24px;
+  --cine-space-6: 32px;
+  --cine-space-7: 48px;
+  --cine-nav-h: 56px;
+  --cine-font-ui: "DM Sans", system-ui, sans-serif;
+  --cine-font-display: "Montserrat", system-ui, sans-serif;
+  --cine-theme-label: "Pulse";
+  --cine-theme-feel: "Electric cyan on black — default";
+}
+
+[data-theme="noir"] {
+  --cine-bg: #000000;
+  --cine-surface: #111111;
+  --cine-text: #ffffff;
+  --cine-muted: #888888;
+  --cine-border: #333333;
+  --cine-accent: #ffffff;
+  --cine-danger: #ff9d9d;
+  --cine-theme-label: "Noir";
+  --cine-theme-feel: "Stark B&W challenger — outdoor campaign";
+}
+
+[data-theme="violet"] {
+  --cine-bg: #09070e;
+  --cine-surface: #15101f;
+  --cine-text: #f5f1fa;
+  --cine-muted: #9d96a4;
+  --cine-border: rgba(255, 255, 255, 0.12);
+  --cine-accent: #9b4dff;
+  --cine-danger: #ff9d9d;
+  --cine-theme-label: "Violet";
+  --cine-theme-feel: "Cinematic violet — reference glass";
+}
+
+[data-theme="ember"] {
+  --cine-bg: #100a08;
+  --cine-surface: #1c1210;
+  --cine-text: #fff5f0;
+  --cine-muted: #b89a90;
+  --cine-border: #3a2822;
+  --cine-accent: #ff6b35;
+  --cine-danger: #ff9d9d;
+  --cine-theme-label: "Ember";
+  --cine-theme-feel: "Warm late-night watch";
+}
+
+[data-theme="sage"] {
+  --cine-bg: #0a0f0c;
+  --cine-surface: #121a16;
+  --cine-text: #eef6f1;
+  --cine-muted: #8aa396;
+  --cine-border: #24302a;
+  --cine-accent: #5ddea6;
+  --cine-danger: #ff9d9d;
+  --cine-theme-label: "Sage";
+  --cine-theme-feel: "Calm library care";
+}
+
+[data-theme="day"] {
+  --cine-bg: #f7f5fa;
+  --cine-surface: #ffffff;
+  --cine-text: #1b1323;
+  --cine-muted: #625a6c;
+  --cine-border: rgba(34, 23, 47, 0.16);
+  --cine-accent: #0ccdf6;
+  --cine-danger: #cc4444;
+  --cine-theme-label: "Day";
+  --cine-theme-feel: "Light canvas, same cyan accent";
+}
+
+/* Convenience aliases for existing cine-* Tailwind classes */
+.bg-cine-bg { background: var(--cine-bg); }
+.bg-cine-surface { background: var(--cine-surface); }
+.text-cine-text { color: var(--cine-text); }
+.text-cine-muted { color: var(--cine-muted); }
+.border-cine-border { border-color: var(--cine-border); }
+.text-cine-accent, .bg-cine-accent { color: var(--cine-accent); }
+.bg-cine-accent-fill { background: var(--cine-accent); color: #041018; }
