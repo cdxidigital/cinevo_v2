@@ -7,3 +7,6 @@ mobile-web/
 android/app/src/main/assets/public/
 android/app/src/main/assets/capacitor.config.json
 .vercel
+nodes/cinevo-node/tools/certs/cinevo-node.key
+nodes/cinevo-node/tools/certs/cinevo-node.crt
+nodes/cinevo-node/tools/certs/cinevo-node.p12
